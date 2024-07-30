@@ -15,7 +15,7 @@
 
         public override string ToString()
         {
-            return $"{WebsiteName} - {Username} - {Password}";
+            return $"{WebsiteName} - {Password}";
         }
     }
 }

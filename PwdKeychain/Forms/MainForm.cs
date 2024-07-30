@@ -1,98 +1,98 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 using System.Windows.Forms;
 using PwdKeychain.Implementations;
 using PwdKeychain.Interfaces;
 using PwdKeychain.Models;
+using PwdKeychain.Properties;
 
 namespace PwdKeychain
 {
     public partial class MainForm : Form
     {
         private IPassManager _passwordManager = new PassManager();
+        private BindingList<PasswordEntry> _passwordEntries;
         
         public MainForm()
         {
             InitializeComponent();
-            SetIcoBarButton();
+            InitializeGridView();
+            ShowVersion();
         }
 
-        private void addPass_Click(object sender, EventArgs e)
+        private void UpdateGridView()
         {
-            string website = websiteTxtBox.Text;
-            string username = userTxtBox.Text;
-            string password = pwdTxtBox.Text;
-
-            PasswordEntry entry = new PasswordEntry(website, username, password);
-            _passwordManager.AddPassword(entry);
-
-            UpdateListView();
-        }
-
-        private void editPass_Click(object sender, EventArgs e)
-        {
-            if (listViewShowPass.SelectedItems.Count > 0)
-            {
-                int index = listViewShowPass.SelectedIndices[0];
-                PasswordEntry entry = new PasswordEntry(websiteTxtBox.Text, userTxtBox.Text, pwdTxtBox.Text);
-                _passwordManager.EditPassword(index, entry);
-
-                UpdateListView();
-            }
-        }
-
-        private void deletePass_Click(object sender, EventArgs e)
-        {
-            if (listViewShowPass.SelectedItems.Count > 0)
-            {
-                int index = listViewShowPass.SelectedIndices[0];
-                _passwordManager.ErasePassword(index);
-
-                UpdateListView();
-            }
-        }
-
-        private void UpdateListView()
-        {
-            listViewShowPass.Items.Clear();
+            accGridView.Rows.Clear();
             foreach (var entry in _passwordManager.GetAllPasswords())
             {
-                listViewShowPass.Items.Add(entry.ToString());
+                _passwordEntries.Add(entry);
+            }
+        }
+
+        private void InitializeGridView()
+        {
+            _passwordEntries = new BindingList<PasswordEntry>(_passwordManager.GetAllPasswords());
+            accGridView.DataSource = _passwordEntries;
+            accGridView.Columns["Password"].Visible = false;
+        }
+
+        private void addDataButton_Click(object sender, EventArgs e)
+        {
+            using (EntryAndEditForm entryForm = new EntryAndEditForm("0"))
+            {
+                if (entryForm.ShowDialog() == DialogResult.OK)
+                {
+                    PasswordEntry newEntry = new PasswordEntry(entryForm.Website, entryForm.Username, entryForm.Password);
+                    _passwordManager.AddPassword(newEntry);
+                    _passwordEntries.Add(newEntry);
+                    _passwordManager.SavePasswords();
+                }
+            }
+        }
+        
+        private void editDataButton_Click(object sender, EventArgs e)
+        {
+            if (accGridView.SelectedRows.Count > 0)
+            {
+                int index = accGridView.SelectedRows[0].Index;
+                //PasswordEntry pwdInd = _passwordManager.GetAllPasswords()[index];
+                PasswordEntry pwdInd = _passwordEntries[index];
+
+                using (EntryAndEditForm editForm = new EntryAndEditForm("1"))
+                {
+                    editForm.Website = pwdInd.WebsiteName;
+                    editForm.Username = pwdInd.Username;
+                    editForm.Password = pwdInd.Password;
+                    
+                    if (editForm.ShowDialog() == DialogResult.OK)
+                    {
+                        PasswordEntry editedEntry = new PasswordEntry(editForm.Website, editForm.Username, editForm.Password);
+                        _passwordManager.EditPassword(index, editedEntry);
+                        _passwordManager.SavePasswords();
+                        accGridView.Refresh();
+                    }
+                }
             }
         }
         
         private void Form1_Load(object sender, EventArgs e)
         {
             _passwordManager.LoadPasswords();
-            UpdateListView();
+            
+            UpdateGridView();
+            accGridView.Refresh();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             _passwordManager.SavePasswords();
         }
-
-        private void SetIcoBarButton()
+        
+        private void ShowVersion()
         {
-            
-        }
-
-        private void addDataButton_Click(object sender, EventArgs e)
-        {
-            using (EntryAndEditForm entryForm = new EntryAndEditForm())
-            {
-                if (entryForm.ShowDialog() == DialogResult.OK)
-                {
-                    PasswordEntry entry = new PasswordEntry(entryForm.)
-                }
-            }
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            Text = string.Format(Resources.MainForm_ShowVersion_Version___0_, version);
         }
     }
 }
