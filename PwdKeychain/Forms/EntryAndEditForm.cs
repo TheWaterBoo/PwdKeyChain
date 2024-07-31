@@ -2,7 +2,7 @@
 using System.Windows.Forms;
 using PwdKeychain.Properties;
 
-namespace PwdKeychain
+namespace PwdKeychain.Forms
 {
     public partial class EntryAndEditForm : Form
     {
@@ -30,7 +30,7 @@ namespace PwdKeychain
         {
             InitializeComponent();
             FormType = formType;
-            customForm();
+            CustomForm();
         }
         
         private void entryAndEditButt_Click(object sender, EventArgs e)
@@ -39,7 +39,7 @@ namespace PwdKeychain
             Close();
         }
 
-        private void customForm()
+        private void CustomForm()
         {
             switch (FormType)
             {

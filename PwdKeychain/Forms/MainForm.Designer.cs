@@ -1,4 +1,4 @@
-﻿namespace PwdKeychain
+﻿namespace PwdKeychain.Forms
 {
     partial class MainForm
     {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Reflection;
 using System.Windows.Forms;
 using PwdKeychain.Implementations;
@@ -7,12 +6,11 @@ using PwdKeychain.Interfaces;
 using PwdKeychain.Models;
 using PwdKeychain.Properties;
 
-namespace PwdKeychain
+namespace PwdKeychain.Forms
 {
     public partial class MainForm : Form
     {
         private IPassManager _passwordManager = new PassManager();
-        //private BindingList<PasswordEntry> _passwordEntries;
         
         public MainForm()
         {
@@ -32,8 +30,6 @@ namespace PwdKeychain
         {
             accGridView.ClearSelection();
             _passwordManager.LoadPasswords();
-            //_passwordEntries = new BindingList<PasswordEntry>(_passwordManager.GetAllPasswords());
-            //accGridView.DataSource = _passwordEntries;
             accGridView.DataSource = _passwordManager.GetAllPasswords();
         }
         
@@ -75,7 +71,6 @@ namespace PwdKeychain
                         _passwordManager.EditPassword(index, editedEntry);
                         _passwordManager.SavePasswords();
                         accGridView.ClearSelection();
-                        //GetGridViewData();
                     }
                 }
             }
@@ -83,11 +78,16 @@ namespace PwdKeychain
         
         private void deleteDataButton_Click(object sender, EventArgs e)
         {
-            while (accGridView.SelectedRows.Count > 0)
+            var msgText = $"The following {accGridView.SelectedRows.Count} item(s)\nwill be deleted, are you sure?";
+            using (ConfirmationForm deleteVerification = new ConfirmationForm(msgText, "Sure","Cancel", "Warning"))
             {
-                int index = accGridView.SelectedRows[0].Index;
-                _passwordManager.ErasePassword(index);
-                _passwordManager.SavePasswords();
+                if (deleteVerification.ShowDialog() != DialogResult.OK) return;
+                while (accGridView.SelectedRows.Count > 0)
+                {
+                    int index = accGridView.SelectedRows[0].Index;
+                    _passwordManager.ErasePassword(index);
+                    _passwordManager.SavePasswords();
+                }
             }
         }
         
