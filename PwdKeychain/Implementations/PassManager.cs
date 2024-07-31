@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using Newtonsoft.Json;
 using PwdKeychain.Interfaces;
@@ -8,7 +9,7 @@ namespace PwdKeychain.Implementations
 {
     public class PassManager : IPassManager
     {
-        private List<PasswordEntry> _passEntries = new List<PasswordEntry>();
+        private BindingList<PasswordEntry> _passEntries = new BindingList<PasswordEntry>();
 
         public void AddPassword(PasswordEntry newEntry)
         {
@@ -27,17 +28,18 @@ namespace PwdKeychain.Implementations
                 _passEntries.RemoveAt(index);
         }
 
-        public List<PasswordEntry> GetAllPasswords()
+        public BindingList<PasswordEntry> GetAllPasswords()
         {
             return _passEntries;
         }
         
+        //Metodos temporales
         public void LoadPasswords()
         {
             if (File.Exists("SecretPwd.json"))
             {
                 string json = File.ReadAllText("SecretPwd.json");
-                _passEntries = JsonConvert.DeserializeObject<List<PasswordEntry>>(json);
+                _passEntries = JsonConvert.DeserializeObject<BindingList<PasswordEntry>>(json);
             }
         }
 

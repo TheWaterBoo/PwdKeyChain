@@ -127,6 +127,6 @@
     <value>Editing existing account</value>
   </data>
   <data name="MainForm_ShowVersion_Version___0_" xml:space="preserve">
-    <value>Version: {0}</value>
+    <value>Ver. {0}</value>
   </data>
 </root>

@@ -96,7 +96,7 @@ namespace PwdKeychain.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Version: {0}.
+        ///   Looks up a localized string similar to Ver. {0}.
         /// </summary>
         internal static string MainForm_ShowVersion_Version___0_ {
             get {

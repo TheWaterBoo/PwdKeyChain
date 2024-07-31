@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.listViewShowPass = new System.Windows.Forms.ListView();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -41,19 +40,6 @@
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.accGridView)).BeginInit();
             this.SuspendLayout();
-            // 
-            // listViewShowPass
-            // 
-            this.listViewShowPass.Activation = System.Windows.Forms.ItemActivation.OneClick;
-            this.listViewShowPass.HideSelection = false;
-            this.listViewShowPass.Location = new System.Drawing.Point(115, 454);
-            this.listViewShowPass.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.listViewShowPass.Name = "listViewShowPass";
-            this.listViewShowPass.Size = new System.Drawing.Size(104, 67);
-            this.listViewShowPass.TabIndex = 7;
-            this.listViewShowPass.TileSize = new System.Drawing.Size(1, 1);
-            this.listViewShowPass.UseCompatibleStateImageBehavior = false;
-            this.listViewShowPass.View = System.Windows.Forms.View.List;
             // 
             // toolStripButton1
             // 
@@ -73,7 +59,7 @@
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.addDataButton, this.editDataButton, this.deleteDataButton });
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(359, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(419, 25);
             this.toolStrip1.TabIndex = 12;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -104,6 +90,7 @@
             this.deleteDataButton.Name = "deleteDataButton";
             this.deleteDataButton.Size = new System.Drawing.Size(60, 22);
             this.deleteDataButton.Text = "Delete";
+            this.deleteDataButton.Click += new System.EventHandler(this.deleteDataButton_Click);
             // 
             // toolStripButton3
             // 
@@ -122,24 +109,27 @@
             this.accGridView.Name = "accGridView";
             this.accGridView.ReadOnly = true;
             this.accGridView.RowTemplate.Height = 24;
-            this.accGridView.Size = new System.Drawing.Size(335, 398);
+            this.accGridView.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.accGridView.Size = new System.Drawing.Size(395, 407);
             this.accGridView.TabIndex = 13;
+            this.accGridView.SelectionChanged += new System.EventHandler(this.accGridView_SelectionChanged);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(359, 547);
+            this.ClientSize = new System.Drawing.Size(419, 459);
             this.Controls.Add(this.accGridView);
             this.Controls.Add(this.toolStrip1);
-            this.Controls.Add(this.listViewShowPass);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.MaximizeBox = false;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MainForm";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.MainForm_Load);
+            this.Click += new System.EventHandler(this.MainForm_Click);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.accGridView)).EndInit();
@@ -160,8 +150,6 @@
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStrip toolStrip1;
-
-        private System.Windows.Forms.ListView listViewShowPass;
 
         #endregion
     }
