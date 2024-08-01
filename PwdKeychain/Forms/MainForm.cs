@@ -11,6 +11,7 @@ namespace PwdKeychain.Forms
     public partial class MainForm : Form
     {
         private IPassManager _passwordManager = new PassManager();
+        private IDatabaseManager _dbManager = new DatabaseManager();
         
         public MainForm()
         {
@@ -28,9 +29,7 @@ namespace PwdKeychain.Forms
 
         private void GetGridViewData()
         {
-            accGridView.ClearSelection();
-            _passwordManager.LoadPasswords();
-            accGridView.DataSource = _passwordManager.GetAllPasswords();
+            accGridView.DataSource = _dbManager.GetAllPass();
         }
         
         private void ShowVersion()
@@ -45,9 +44,8 @@ namespace PwdKeychain.Forms
             {
                 if (entryForm.ShowDialog() == DialogResult.OK)
                 {
-                    PasswordEntry newEntry = new PasswordEntry(entryForm.Website, entryForm.Username, entryForm.Password);
-                    _passwordManager.AddPassword(newEntry);
-                    _passwordManager.SavePasswords();
+                    _dbManager.AddPassword(entryForm.Website, entryForm.Username, entryForm.Password);
+                    GetGridViewData();
                 }
             }
         }
@@ -57,7 +55,7 @@ namespace PwdKeychain.Forms
             if (accGridView.SelectedRows.Count > 0)
             {
                 int index = accGridView.SelectedRows[0].Index;
-                PasswordEntry pwdInd = _passwordManager.GetAllPasswords()[index];
+                PasswordEntry pwdInd = _dbManager.GetAllPass()[index];
 
                 using (EntryAndEditForm editForm = new EntryAndEditForm("1"))
                 {
@@ -67,10 +65,8 @@ namespace PwdKeychain.Forms
                     
                     if (editForm.ShowDialog() == DialogResult.OK)
                     {
-                        PasswordEntry editedEntry = new PasswordEntry(editForm.Website, editForm.Username, editForm.Password);
-                        _passwordManager.EditPassword(index, editedEntry);
-                        _passwordManager.SavePasswords();
-                        accGridView.ClearSelection();
+                        _dbManager.EditPassword(index, editForm.Website, editForm.Username, editForm.Password);
+                        GetGridViewData();
                     }
                 }
             }
@@ -78,15 +74,15 @@ namespace PwdKeychain.Forms
         
         private void deleteDataButton_Click(object sender, EventArgs e)
         {
-            var msgText = $"The following {accGridView.SelectedRows.Count} item(s)\nwill be deleted, are you sure?";
+            var msgText = $"The following {accGridView.SelectedRows.Count} item(s) will be deleted,\n are you sure?";
             using (ConfirmationForm deleteVerification = new ConfirmationForm(msgText, "Sure","Cancel", "Warning"))
             {
                 if (deleteVerification.ShowDialog() != DialogResult.OK) return;
                 while (accGridView.SelectedRows.Count > 0)
                 {
                     int index = accGridView.SelectedRows[0].Index;
-                    _passwordManager.ErasePassword(index);
-                    _passwordManager.SavePasswords();
+                    _dbManager.DeletePassword(index);
+                    GetGridViewData();
                 }
             }
         }
@@ -101,12 +97,7 @@ namespace PwdKeychain.Forms
             editDataButton.Enabled = accGridView.SelectedRows.Count == 1;
             deleteDataButton.Enabled = accGridView.SelectedRows.Count >= 1;
         }
-        
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            _passwordManager.SavePasswords();
-        }
-        
+
         private void MainForm_Load(object sender, EventArgs e)
         {
             accGridView.ClearSelection();

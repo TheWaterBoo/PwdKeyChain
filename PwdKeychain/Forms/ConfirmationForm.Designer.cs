@@ -38,19 +38,21 @@ namespace PwdKeychain.Forms
             // 
             // textInfoLabel
             // 
-            this.textInfoLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textInfoLabel.Location = new System.Drawing.Point(12, 9);
+            this.textInfoLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textInfoLabel.Location = new System.Drawing.Point(16, 11);
+            this.textInfoLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.textInfoLabel.Name = "textInfoLabel";
-            this.textInfoLabel.Size = new System.Drawing.Size(259, 63);
+            this.textInfoLabel.Size = new System.Drawing.Size(345, 78);
             this.textInfoLabel.TabIndex = 0;
             this.textInfoLabel.Text = "Put some text here, also modify the text Buttons";
             this.textInfoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // positiveButton
             // 
-            this.positiveButton.Location = new System.Drawing.Point(65, 86);
+            this.positiveButton.Location = new System.Drawing.Point(87, 106);
+            this.positiveButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.positiveButton.Name = "positiveButton";
-            this.positiveButton.Size = new System.Drawing.Size(75, 23);
+            this.positiveButton.Size = new System.Drawing.Size(100, 28);
             this.positiveButton.TabIndex = 1;
             this.positiveButton.Text = "Sure";
             this.positiveButton.UseVisualStyleBackColor = true;
@@ -58,9 +60,10 @@ namespace PwdKeychain.Forms
             // 
             // NegativeButton
             // 
-            this.NegativeButton.Location = new System.Drawing.Point(146, 86);
+            this.NegativeButton.Location = new System.Drawing.Point(195, 106);
+            this.NegativeButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.NegativeButton.Name = "NegativeButton";
-            this.NegativeButton.Size = new System.Drawing.Size(75, 23);
+            this.NegativeButton.Size = new System.Drawing.Size(100, 28);
             this.NegativeButton.TabIndex = 2;
             this.NegativeButton.Text = "Cancel";
             this.NegativeButton.UseVisualStyleBackColor = true;
@@ -68,13 +71,14 @@ namespace PwdKeychain.Forms
             // 
             // ConfirmationForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(283, 121);
+            this.ClientSize = new System.Drawing.Size(377, 149);
             this.Controls.Add(this.NegativeButton);
             this.Controls.Add(this.positiveButton);
             this.Controls.Add(this.textInfoLabel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ConfirmationForm";
