@@ -1,6 +1,7 @@
 ﻿using PwdKeychain.Interfaces;
 using System.Data.SQLite;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Security.Cryptography;
 using System.Text;
@@ -24,7 +25,7 @@ namespace PwdKeychain.Implementations
                 connection.Open();
                 string createTable =
                     @"CREATE TABLE IF NOT EXISTS PasswordEntries 
-                    (Id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    (Id INTEGER PRIMARY KEY, 
                     Website TEXT NOT NULL, 
                     Username TEXT NOT NULL, 
                     Password TEXT NOT NULL)";
@@ -50,7 +51,7 @@ namespace PwdKeychain.Implementations
             }
         }
 
-        public void EditPassword(int id, string website, string username, string password)
+        public void EditPassword(string passId, string website, string username, string password)
         {
             using (var connection = new SQLiteConnection(ConnectionString))
             {
@@ -58,7 +59,7 @@ namespace PwdKeychain.Implementations
                 string updateQuery = "UPDATE PasswordEntries SET Website = @Website, Username = @Username, Password = @Password WHERE Id = @Id";
                 using (var command = new SQLiteCommand(updateQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@Id", passId);
                     command.Parameters.AddWithValue("@Website", website);
                     command.Parameters.AddWithValue("@Username", username);
                     command.Parameters.AddWithValue("@Password", password);
@@ -67,7 +68,7 @@ namespace PwdKeychain.Implementations
             }
         }
 
-        public void DeletePassword(int id)
+        public void DeletePassword(List<int> index)
         {
             using (var connection = new SQLiteConnection(ConnectionString))
             {
@@ -75,10 +76,25 @@ namespace PwdKeychain.Implementations
                 string deleteQuery = "DELETE FROM PasswordEntries WHERE Id = @Id";
                 using (var command = new SQLiteCommand(deleteQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@Id", id);
+                    foreach (var id in index)
+                    {
+                        
+                    }
+                    
+                    command.Parameters.AddWithValue("@Id", passId);
                     command.ExecuteNonQuery();
                 }
-                connection.Close();
+            }
+        }
+        
+        public void DropDatabase()
+        {
+            using (var connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+                string doropDaraBeis = "DROP TABLE IF EXISTS PasswordEntries";
+                using (var command = new SQLiteCommand(doropDaraBeis, connection))
+                    command.ExecuteNonQuery();
             }
         }
 

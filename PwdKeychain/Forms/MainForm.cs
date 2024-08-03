@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
 using PwdKeychain.Implementations;
@@ -24,12 +25,15 @@ namespace PwdKeychain.Forms
         {
             GetGridViewData();
             accGridView.Columns["Password"].Visible = false;
+            //accGridView.Columns["Id"].Visible = false;
             accGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         }
 
         private void GetGridViewData()
         {
             accGridView.DataSource = _dbManager.GetAllPass();
+            /*accGridView.Refresh();
+            accGridView.ClearSelection();*/
         }
         
         private void ShowVersion()
@@ -62,10 +66,11 @@ namespace PwdKeychain.Forms
                     editForm.Website = pwdInd.WebsiteName;
                     editForm.Username = pwdInd.Username;
                     editForm.Password = pwdInd.Password;
+                    string passId = pwdInd.Id;
                     
                     if (editForm.ShowDialog() == DialogResult.OK)
                     {
-                        _dbManager.EditPassword(index, editForm.Website, editForm.Username, editForm.Password);
+                        _dbManager.EditPassword(passId, editForm.Website, editForm.Username, editForm.Password);
                         GetGridViewData();
                     }
                 }
@@ -77,13 +82,22 @@ namespace PwdKeychain.Forms
             var msgText = $"The following {accGridView.SelectedRows.Count} item(s) will be deleted,\n are you sure?";
             using (ConfirmationForm deleteVerification = new ConfirmationForm(msgText, "Sure","Cancel", "Warning"))
             {
+                List<int> selectedIndex = new List<int>();
+                foreach (DataGridViewRow row in accGridView.SelectedRows)
+                {
+                    selectedIndex.Add(row.Index);
+                }
+                
                 if (deleteVerification.ShowDialog() != DialogResult.OK) return;
                 while (accGridView.SelectedRows.Count > 0)
                 {
-                    int index = accGridView.SelectedRows[0].Index;
-                    _dbManager.DeletePassword(index);
-                    GetGridViewData();
+                    //int index = accGridView.SelectedRows[0].Index;
+                    //PasswordEntry pwdInd = _dbManager.GetAllPass()[index];
+                    //string passId = pwdInd.Id;
+                    
+                    _dbManager.DeletePassword(selectedIndex);
                 }
+                //GetGridViewData();
             }
         }
         
@@ -101,6 +115,12 @@ namespace PwdKeychain.Forms
         private void MainForm_Load(object sender, EventArgs e)
         {
             accGridView.ClearSelection();
+        }
+
+        //Temporal Button, Remove later...
+        private void toolStripButton4_Click(object sender, EventArgs e)
+        {
+            _dbManager.DropDatabase();
         }
     }
 }
