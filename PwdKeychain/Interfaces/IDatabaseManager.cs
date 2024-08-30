@@ -8,7 +8,7 @@ namespace PwdKeychain.Interfaces
     {
         void AddPassword(string website, string username, string password);
         void EditPassword(string passId, string website, string username, string password);
-        void DeletePassword(List<int> index);
+        void DeletePassword(List<string> idList);
         void DropDatabase();
         BindingList<PasswordEntry> GetAllPass();
     }

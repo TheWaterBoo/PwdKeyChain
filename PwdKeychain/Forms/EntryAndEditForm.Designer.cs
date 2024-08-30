@@ -38,75 +38,82 @@ namespace PwdKeychain.Forms
             this.userTxtBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.pwdTxtBox = new System.Windows.Forms.TextBox();
+            this.cancelButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // entryAndEditButt
             // 
-            this.entryAndEditButt.Location = new System.Drawing.Point(204, 167);
-            this.entryAndEditButt.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.entryAndEditButt.Location = new System.Drawing.Point(108, 136);
             this.entryAndEditButt.Name = "entryAndEditButt";
-            this.entryAndEditButt.Size = new System.Drawing.Size(100, 28);
+            this.entryAndEditButt.Size = new System.Drawing.Size(75, 23);
             this.entryAndEditButt.TabIndex = 0;
+            this.entryAndEditButt.TabStop = false;
             this.entryAndEditButt.Text = "Accept";
             this.entryAndEditButt.UseVisualStyleBackColor = true;
             this.entryAndEditButt.Click += new System.EventHandler(this.entryAndEditButt_Click);
             // 
             // label1
             // 
-            this.label1.Location = new System.Drawing.Point(16, 31);
-            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label1.Location = new System.Drawing.Point(12, 25);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(133, 18);
-            this.label1.TabIndex = 1;
+            this.label1.Size = new System.Drawing.Size(100, 15);
+            this.label1.TabIndex = 0;
             this.label1.Text = "Website name:";
             // 
             // websiteTxtBox
             // 
-            this.websiteTxtBox.Location = new System.Drawing.Point(157, 27);
-            this.websiteTxtBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.websiteTxtBox.Location = new System.Drawing.Point(118, 22);
             this.websiteTxtBox.Name = "websiteTxtBox";
-            this.websiteTxtBox.Size = new System.Drawing.Size(337, 22);
-            this.websiteTxtBox.TabIndex = 2;
+            this.websiteTxtBox.Size = new System.Drawing.Size(254, 20);
+            this.websiteTxtBox.TabIndex = 1;
             // 
             // label2
             // 
-            this.label2.Location = new System.Drawing.Point(16, 68);
-            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label2.Location = new System.Drawing.Point(12, 55);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(133, 21);
-            this.label2.TabIndex = 3;
+            this.label2.Size = new System.Drawing.Size(100, 17);
+            this.label2.TabIndex = 0;
             this.label2.Text = "Username / Email:";
             // 
             // userTxtBox
             // 
-            this.userTxtBox.Location = new System.Drawing.Point(157, 64);
-            this.userTxtBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.userTxtBox.Location = new System.Drawing.Point(118, 52);
             this.userTxtBox.Name = "userTxtBox";
-            this.userTxtBox.Size = new System.Drawing.Size(337, 22);
-            this.userTxtBox.TabIndex = 4;
+            this.userTxtBox.Size = new System.Drawing.Size(254, 20);
+            this.userTxtBox.TabIndex = 2;
             // 
             // label3
             // 
-            this.label3.Location = new System.Drawing.Point(16, 105);
-            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label3.Location = new System.Drawing.Point(12, 85);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(133, 18);
-            this.label3.TabIndex = 5;
+            this.label3.Size = new System.Drawing.Size(100, 15);
+            this.label3.TabIndex = 0;
             this.label3.Text = "Password:\r\n";
             // 
             // pwdTxtBox
             // 
-            this.pwdTxtBox.Location = new System.Drawing.Point(157, 101);
-            this.pwdTxtBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pwdTxtBox.Location = new System.Drawing.Point(118, 82);
             this.pwdTxtBox.Name = "pwdTxtBox";
-            this.pwdTxtBox.Size = new System.Drawing.Size(337, 22);
-            this.pwdTxtBox.TabIndex = 6;
+            this.pwdTxtBox.Size = new System.Drawing.Size(254, 20);
+            this.pwdTxtBox.TabIndex = 3;
+            // 
+            // cancelButton
+            // 
+            this.cancelButton.Location = new System.Drawing.Point(208, 136);
+            this.cancelButton.Name = "cancelButton";
+            this.cancelButton.Size = new System.Drawing.Size(75, 23);
+            this.cancelButton.TabIndex = 4;
+            this.cancelButton.TabStop = false;
+            this.cancelButton.Text = "No";
+            this.cancelButton.UseVisualStyleBackColor = true;
+            this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
             // 
             // EntryAndEditForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(525, 210);
+            this.ClientSize = new System.Drawing.Size(394, 171);
+            this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.pwdTxtBox);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.userTxtBox);
@@ -115,7 +122,6 @@ namespace PwdKeychain.Forms
             this.Controls.Add(this.label1);
             this.Controls.Add(this.entryAndEditButt);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "EntryAndEditForm";
@@ -123,9 +129,13 @@ namespace PwdKeychain.Forms
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "NameAction Here";
             this.TopMost = true;
+            this.Load += new System.EventHandler(this.EntryAndEditForm_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.EntryAndEditForm_KeyDown);
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+
+        private System.Windows.Forms.Button cancelButton;
 
         private System.Windows.Forms.TextBox pwdTxtBox;
 

@@ -11,9 +11,9 @@ namespace PwdKeychain.Forms
 {
     public partial class MainForm : Form
     {
-        private IPassManager _passwordManager = new PassManager();
+        public Keys ShortcutKeys { get; set; }
         private IDatabaseManager _dbManager = new DatabaseManager();
-        
+
         public MainForm()
         {
             InitializeComponent();
@@ -25,17 +25,15 @@ namespace PwdKeychain.Forms
         {
             GetGridViewData();
             accGridView.Columns["Password"].Visible = false;
-            //accGridView.Columns["Id"].Visible = false;
+            accGridView.Columns["Id"].Visible = true;
             accGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         }
 
         private void GetGridViewData()
         {
             accGridView.DataSource = _dbManager.GetAllPass();
-            /*accGridView.Refresh();
-            accGridView.ClearSelection();*/
         }
-        
+
         private void ShowVersion()
         {
             var version = Assembly.GetExecutingAssembly().GetName().Version;
@@ -44,7 +42,7 @@ namespace PwdKeychain.Forms
 
         private void addDataButton_Click(object sender, EventArgs e)
         {
-            using (EntryAndEditForm entryForm = new EntryAndEditForm("0"))
+            using (EntryAndEditForm entryForm = new EntryAndEditForm("Save", "Cancel", Resources.EntryAndEditForm_customForm_Add_new_account))
             {
                 if (entryForm.ShowDialog() == DialogResult.OK)
                 {
@@ -53,7 +51,7 @@ namespace PwdKeychain.Forms
                 }
             }
         }
-        
+
         private void editDataButton_Click(object sender, EventArgs e)
         {
             if (accGridView.SelectedRows.Count > 0)
@@ -61,13 +59,13 @@ namespace PwdKeychain.Forms
                 int index = accGridView.SelectedRows[0].Index;
                 PasswordEntry pwdInd = _dbManager.GetAllPass()[index];
 
-                using (EntryAndEditForm editForm = new EntryAndEditForm("1"))
+                using (EntryAndEditForm editForm = new EntryAndEditForm("Edit", "Cancel", Resources.EntryAndEditForm_customForm_Editing_existing_account))
                 {
                     editForm.Website = pwdInd.WebsiteName;
                     editForm.Username = pwdInd.Username;
                     editForm.Password = pwdInd.Password;
                     string passId = pwdInd.Id;
-                    
+
                     if (editForm.ShowDialog() == DialogResult.OK)
                     {
                         _dbManager.EditPassword(passId, editForm.Website, editForm.Username, editForm.Password);
@@ -76,31 +74,24 @@ namespace PwdKeychain.Forms
                 }
             }
         }
-        
+
         private void deleteDataButton_Click(object sender, EventArgs e)
         {
             var msgText = $"The following {accGridView.SelectedRows.Count} item(s) will be deleted,\n are you sure?";
-            using (ConfirmationForm deleteVerification = new ConfirmationForm(msgText, "Sure","Cancel", "Warning"))
+            using (ConfirmationForm deleteVerification = new ConfirmationForm(msgText, "Sure", "Cancel", "Warning"))
             {
-                List<int> selectedIndex = new List<int>();
+                List<string> idList = new List<string>();
                 foreach (DataGridViewRow row in accGridView.SelectedRows)
                 {
-                    selectedIndex.Add(row.Index);
+                    idList.Add(row.Cells["Id"].Value.ToString());
                 }
-                
+
                 if (deleteVerification.ShowDialog() != DialogResult.OK) return;
-                while (accGridView.SelectedRows.Count > 0)
-                {
-                    //int index = accGridView.SelectedRows[0].Index;
-                    //PasswordEntry pwdInd = _dbManager.GetAllPass()[index];
-                    //string passId = pwdInd.Id;
-                    
-                    _dbManager.DeletePassword(selectedIndex);
-                }
-                //GetGridViewData();
+                _dbManager.DeletePassword(idList);
+                GetGridViewData();
             }
         }
-        
+
         private void MainForm_Click(object sender, EventArgs e)
         {
             accGridView.ClearSelection();
@@ -117,10 +108,16 @@ namespace PwdKeychain.Forms
             accGridView.ClearSelection();
         }
 
+        private void Shortcuts()
+        {
+            ShortcutKeys = Keys.Control | Keys.N;
+        }
+
         //Temporal Button, Remove later...
         private void toolStripButton4_Click(object sender, EventArgs e)
         {
             _dbManager.DropDatabase();
+            Dispose();
         }
     }
 }

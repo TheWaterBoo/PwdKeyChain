@@ -6,8 +6,6 @@ namespace PwdKeychain.Forms
 {
     public partial class EntryAndEditForm : Form
     {
-        public string FormType { get; set; }
-        
         public string Website
         {
             get => websiteTxtBox.Text;
@@ -26,11 +24,10 @@ namespace PwdKeychain.Forms
             set => pwdTxtBox.Text = value;
         }
         
-        public EntryAndEditForm(string formType)
+        public EntryAndEditForm(string okButton, string noButton, string formTitle)
         {
             InitializeComponent();
-            FormType = formType;
-            CustomForm();
+            CustomForm(okButton, noButton, formTitle);
         }
         
         private void entryAndEditButt_Click(object sender, EventArgs e)
@@ -38,18 +35,34 @@ namespace PwdKeychain.Forms
             DialogResult = DialogResult.OK;
             Close();
         }
-
-        private void CustomForm()
+        
+        private void cancelButton_Click(object sender, EventArgs e)
         {
-            switch (FormType)
+            DialogResult = DialogResult.Cancel;
+            Close();
+        }
+
+        private void CustomForm(string okButton, string noButton, string formTitle)
+        {
+            entryAndEditButt.Text = okButton;
+            cancelButton.Text = noButton;
+            Text = formTitle;
+        }
+
+        private void EntryAndEditForm_Load(object sender, EventArgs e)
+        {
+            KeyPreview = true;
+        }
+
+        private void EntryAndEditForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyValue)
             {
-                case "0":
-                    entryAndEditButt.Text = Resources.EntryAndEditForm_customForm_Save;
-                    Text = Resources.EntryAndEditForm_customForm_Add_new_account;
+                case 27:
+                    cancelButton_Click(sender, null);
                     break;
-                case "1":
-                    entryAndEditButt.Text = Resources.EntryAndEditForm_customForm_Edit;
-                    Text = Resources.EntryAndEditForm_customForm_Editing_existing_account;
+                case 13:
+                    entryAndEditButt_Click(sender, null);
                     break;
             }
         }

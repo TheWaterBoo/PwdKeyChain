@@ -12,6 +12,7 @@ namespace PwdKeychain.Implementations
     public class DatabaseManager : IDatabaseManager
     {
         private const string ConnectionString = "Data Source=PasswordDB.sqlite;Version=3;";
+        private readonly IBlower _blower = new Blower();
 
         public DatabaseManager()
         {
@@ -25,7 +26,7 @@ namespace PwdKeychain.Implementations
                 connection.Open();
                 string createTable =
                     @"CREATE TABLE IF NOT EXISTS PasswordEntries 
-                    (Id INTEGER PRIMARY KEY, 
+                    (Id INTEGER PRIMARY KEY AUTOINCREMENT, 
                     Website TEXT NOT NULL, 
                     Username TEXT NOT NULL, 
                     Password TEXT NOT NULL)";
@@ -36,16 +37,16 @@ namespace PwdKeychain.Implementations
 
         public void AddPassword(string website, string username, string password)
         {
-            //string encryptedPassword = Encrypt(password);
             using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
-                string insertQuery = "INSERT INTO PasswordEntries (Website, Username, Password) VALUES (@Website, @Username, @Password)";
+                string insertQuery =
+                    "INSERT INTO PasswordEntries (Website, Username, Password) VALUES (@Website, @Username, @Password)";
                 using (var command = new SQLiteCommand(insertQuery, connection))
                 {
                     command.Parameters.AddWithValue("@Website", website);
                     command.Parameters.AddWithValue("@Username", username);
-                    command.Parameters.AddWithValue("@Password", password);
+                    command.Parameters.AddWithValue("@Password", _blower.Encrypter(password));
                     command.ExecuteNonQuery();
                 }
             }
@@ -56,19 +57,20 @@ namespace PwdKeychain.Implementations
             using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
-                string updateQuery = "UPDATE PasswordEntries SET Website = @Website, Username = @Username, Password = @Password WHERE Id = @Id";
+                string updateQuery =
+                    "UPDATE PasswordEntries SET Website = @Website, Username = @Username, Password = @Password WHERE Id = @Id";
                 using (var command = new SQLiteCommand(updateQuery, connection))
                 {
                     command.Parameters.AddWithValue("@Id", passId);
                     command.Parameters.AddWithValue("@Website", website);
                     command.Parameters.AddWithValue("@Username", username);
-                    command.Parameters.AddWithValue("@Password", password);
+                    command.Parameters.AddWithValue("@Password", _blower.Encrypter(password));
                     command.ExecuteNonQuery();
                 }
             }
         }
 
-        public void DeletePassword(List<int> index)
+        public void DeletePassword(List<string> idList)
         {
             using (var connection = new SQLiteConnection(ConnectionString))
             {
@@ -76,17 +78,15 @@ namespace PwdKeychain.Implementations
                 string deleteQuery = "DELETE FROM PasswordEntries WHERE Id = @Id";
                 using (var command = new SQLiteCommand(deleteQuery, connection))
                 {
-                    foreach (var id in index)
+                    foreach (var id in idList)
                     {
-                        
+                        command.Parameters.AddWithValue("@Id", id);
+                        command.ExecuteNonQuery();
                     }
-                    
-                    command.Parameters.AddWithValue("@Id", passId);
-                    command.ExecuteNonQuery();
                 }
             }
         }
-        
+
         public void DropDatabase()
         {
             using (var connection = new SQLiteConnection(ConnectionString))
@@ -106,34 +106,18 @@ namespace PwdKeychain.Implementations
                 connection.Open();
                 string selectQuery = "SELECT * FROM PasswordEntries";
                 using (var command = new SQLiteCommand(selectQuery, connection))
-                    using (var reader = command.ExecuteReader())
-                        while (reader.Read())
-                        {
-                            entries.Add(new PasswordEntry(
-                                reader["Website"].ToString(),
-                                reader["Username"].ToString(),
-                                reader["Password"].ToString(),
-                                reader["Id"].ToString()
-                                ));
-                        }
+                using (var reader = command.ExecuteReader())
+                    while (reader.Read())
+                    {
+                        entries.Add(new PasswordEntry(
+                            reader["Website"].ToString(),
+                            reader["Username"].ToString(),
+                            _blower.Decrypter(reader["Password"].ToString()),
+                            reader["Id"].ToString()
+                        ));
+                    }
             }
-
             return entries;
-        }
-
-        private string Encrypt(string data)
-        {
-            byte[] dataBytes = Encoding.UTF8.GetBytes(data);
-            using (var md5 = MD5.Create())
-            {
-                byte[] encryptedBytes = md5.ComputeHash(dataBytes);
-                return Convert.ToBase64String(encryptedBytes);
-            }
-        }
-
-        private string Decrypt(string encryptedData)
-        {
-            return encryptedData;
         }
     }
 }

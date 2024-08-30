@@ -30,5 +30,24 @@ namespace PwdKeychain.Forms
             NegativeButton.Text = noButton;
             Text = formTitle;
         }
+        
+        private void ConfirmationForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyValue)
+            {
+                case 27: //ESC Key
+                    NegativeButton_Click(sender, null);
+                    break;
+                case 13: //ENTER Key
+                    positiveButton_Click(sender, null);
+                    break;
+            }
+            
+        }
+
+        private void ConfirmationForm_Load(object sender, EventArgs e)
+        {
+            KeyPreview = true;
+        }
     }
 }

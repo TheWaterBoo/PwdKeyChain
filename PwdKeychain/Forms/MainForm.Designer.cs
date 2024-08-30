@@ -35,9 +35,11 @@
             this.addDataButton = new System.Windows.Forms.ToolStripButton();
             this.editDataButton = new System.Windows.Forms.ToolStripButton();
             this.deleteDataButton = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.accGridView = new System.Windows.Forms.DataGridView();
-            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.accGridView)).BeginInit();
             this.SuspendLayout();
@@ -60,7 +62,7 @@
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.addDataButton, this.editDataButton, this.deleteDataButton, this.toolStripButton4 });
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(419, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(314, 25);
             this.toolStrip1.TabIndex = 12;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -93,6 +95,15 @@
             this.deleteDataButton.Text = "Delete";
             this.deleteDataButton.Click += new System.EventHandler(this.deleteDataButton_Click);
             // 
+            // toolStripButton4
+            // 
+            this.toolStripButton4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton4.Image")));
+            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton4.Name = "toolStripButton4";
+            this.toolStripButton4.Size = new System.Drawing.Size(53, 22);
+            this.toolStripButton4.Text = "Drop";
+            this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click);
+            // 
             // toolStripButton3
             // 
             this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
@@ -106,33 +117,37 @@
             this.accGridView.AllowUserToAddRows = false;
             this.accGridView.AllowUserToDeleteRows = false;
             this.accGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.accGridView.Location = new System.Drawing.Point(12, 40);
+            this.accGridView.Location = new System.Drawing.Point(9, 32);
+            this.accGridView.Margin = new System.Windows.Forms.Padding(2);
             this.accGridView.Name = "accGridView";
             this.accGridView.ReadOnly = true;
             this.accGridView.RowTemplate.Height = 24;
             this.accGridView.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.accGridView.Size = new System.Drawing.Size(395, 407);
+            this.accGridView.Size = new System.Drawing.Size(296, 331);
             this.accGridView.TabIndex = 13;
             this.accGridView.SelectionChanged += new System.EventHandler(this.accGridView_SelectionChanged);
             // 
-            // toolStripButton4
+            // toolStripMenuItem1
             // 
-            this.toolStripButton4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton4.Image")));
-            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton4.Name = "toolStripButton4";
-            this.toolStripButton4.Size = new System.Drawing.Size(53, 22);
-            this.toolStripButton4.Text = "Drop";
-            this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click);
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(32, 19);
+            this.toolStripMenuItem1.Text = "toolStripMenuItem1";
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(32, 19);
+            this.toolStripMenuItem2.Text = "toolStripMenuItem2";
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(419, 459);
+            this.ClientSize = new System.Drawing.Size(314, 373);
             this.Controls.Add(this.accGridView);
             this.Controls.Add(this.toolStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.MaximizeBox = false;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -145,6 +160,10 @@
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
+
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
 
         private System.Windows.Forms.ToolStripButton toolStripButton4;
 
