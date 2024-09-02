@@ -2,7 +2,7 @@
 {
     public interface IBlower
     {
-        string Encrypter(string pwd);
-        string Decrypter(string zipedPwd);
+        string Encrypter(string pwd, out string key);
+        string Decrypter(string zipedPwd, string key);
     }
 }

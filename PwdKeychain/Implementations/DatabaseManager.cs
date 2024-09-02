@@ -32,11 +32,22 @@ namespace PwdKeychain.Implementations
                     Password TEXT NOT NULL)";
                 using (var command = new SQLiteCommand(createTable, connection))
                     command.ExecuteNonQuery();
+
+                string createKeysTable =
+                    @"CREATE TABLE IF NOT EXISTS EncryptionKeys 
+                    (Id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    PasswordEntryId INTEGER NOT NULL,
+                    Key TEXT NOT NULL,
+                    FOREIGN KEY(PasswordEntryId) REFERENCES PasswordEntries(Id))";
+                using (var command = new SQLiteCommand(createKeysTable, connection))
+                    command.ExecuteNonQuery();
             }
         }
 
         public void AddPassword(string website, string username, string password)
         {
+            string encryptPass = _blower.Encrypter(password, out var key);
+
             using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
@@ -46,14 +57,18 @@ namespace PwdKeychain.Implementations
                 {
                     command.Parameters.AddWithValue("@Website", website);
                     command.Parameters.AddWithValue("@Username", username);
-                    command.Parameters.AddWithValue("@Password", _blower.Encrypter(password));
+                    command.Parameters.AddWithValue("@Password", encryptPass);
                     command.ExecuteNonQuery();
                 }
+
+                KeyDbKeeper(connection, key);
             }
         }
 
         public void EditPassword(string passId, string website, string username, string password)
         {
+            string editedEncryptPass = _blower.Encrypter(password, out var key);
+
             using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
@@ -64,9 +79,11 @@ namespace PwdKeychain.Implementations
                     command.Parameters.AddWithValue("@Id", passId);
                     command.Parameters.AddWithValue("@Website", website);
                     command.Parameters.AddWithValue("@Username", username);
-                    command.Parameters.AddWithValue("@Password", _blower.Encrypter(password));
+                    command.Parameters.AddWithValue("@Password", editedEncryptPass);
                     command.ExecuteNonQuery();
                 }
+
+                KeyDbKeeper(connection, key);
             }
         }
 
@@ -85,6 +102,53 @@ namespace PwdKeychain.Implementations
                     }
                 }
             }
+        }
+
+        private void KeyDbKeeper(SQLiteConnection connection, string key)
+        {
+            string lastId = "SELECT last_insert_rowid()";
+            int lastEntryId;
+            using (var command = new SQLiteCommand(lastId, connection))
+            {
+                lastEntryId = (int)(long)command.ExecuteScalar();
+            }
+
+            SaveKey(lastEntryId, key);
+        }
+
+        private void SaveKey(int passwordEntryId, string key)
+        {
+            using (var connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+                string insertQuery =
+                    "INSERT INTO EncryptionKeys (PasswordEntryId, Key) VALUES (@PasswordEntryId, @Key)";
+                using (var command = new SQLiteCommand(insertQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@PasswordEntryId", passwordEntryId);
+                    command.Parameters.AddWithValue("@Key", key);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private string GetKey(int passwordEntryId)
+        {
+            string retrievedKey = "";
+
+            using (var connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+
+                string getKeyQuery = "SELECT Key FROM EncryptionKeys WHERE PasswordEntryId = @PasswordEntryId";
+                using (var command = new SQLiteCommand(getKeyQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@PasswordEntryId", passwordEntryId);
+                    retrievedKey = command.ExecuteScalar() as string;
+                }
+            }
+
+            return retrievedKey;
         }
 
         public void DropDatabase()
@@ -109,15 +173,43 @@ namespace PwdKeychain.Implementations
                 using (var reader = command.ExecuteReader())
                     while (reader.Read())
                     {
+                        int passEntryId = Convert.ToInt32(reader["Id"]);
+                        string tempKey = GetKey(passEntryId);
                         entries.Add(new PasswordEntry(
                             reader["Website"].ToString(),
                             reader["Username"].ToString(),
-                            _blower.Decrypter(reader["Password"].ToString()),
+                            _blower.Decrypter(reader["Password"].ToString(), tempKey),
                             reader["Id"].ToString()
                         ));
                     }
             }
+
             return entries;
+        }
+
+        public PasswordEntry GetOnePass(string passId)
+        {
+            using (var connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+                string selectQuery = "SELECT * FROM PasswordEntries WHERE Id = @Id";
+                using (var command = new SQLiteCommand(selectQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", passId);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        string tempKey = GetKey(Convert.ToInt32(passId));
+
+                        if (reader.Read())
+                        {
+                            return new PasswordEntry(reader["Website"].ToString(), reader["Username"].ToString(),
+                                _blower.Decrypter(reader["Password"].ToString(), tempKey), reader["Id"].ToString());
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

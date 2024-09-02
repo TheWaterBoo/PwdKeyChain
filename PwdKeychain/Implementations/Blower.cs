@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using PwdKeychain.Interfaces;
 using Org.BouncyCastle.Crypto;
@@ -18,27 +20,102 @@ namespace PwdKeychain.Implementations
 
         public Blower()
         {
-            //_key = new byte[] { 24, 87, 245, 72, 44, 7, 99, 112, 255, 177, 101, 34, 22, 58, 244, 1 };
-            _key = KeyGen();
-            ShardGen();
             _padding = new Pkcs7Padding();
         }
 
-        public string Encrypter(string pwd)
+        public string Encrypter(string plainText, out string key)
+        {
+            _key = KeyGen();
+            byte[] iv = IVGen();
+
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = _key;
+                aes.IV = iv;
+
+                ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+
+                using (MemoryStream msEncrypt = new MemoryStream())
+                {
+                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                    using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                    {
+                        swEncrypt.Write(plainText);
+                    }
+
+                    byte[] encrypted = msEncrypt.ToArray();
+                    key = Convert.ToBase64String(_key);
+                    
+                    return Convert.ToBase64String(iv.Concat(encrypted).ToArray());
+                }
+            }
+        }
+        
+        /*public string Encrypter(string pwd)
         {
             byte[] inputBytes = Encoding.UTF8.GetBytes(pwd);
             byte[] encryptOutput = CryptNDecrypt(inputBytes, true);
-            byte[] finalOutput = EncryptMilkshake(encryptOutput);
-            return Convert.ToBase64String(finalOutput);
+            //byte[] finalOutput = EncryptMilkshake(encryptOutput);
+            string finalOutput = Convert.ToBase64String(encryptOutput) + Convert.ToBase64String(_key);
+            //return Convert.ToBase64String(encryptOutput);
+            return finalOutput;
+        }*/
+
+        public string Decrypter(string cipherText, string key)
+        {
+            byte[] tempKey = Convert.FromBase64String(key);
+            byte[] fullCipher = Convert.FromBase64String(cipherText);
+            
+            byte[] tempIv = new byte[16];
+            byte[] cipher = new byte[fullCipher.Length - tempIv.Length];
+            Array.Copy(fullCipher, tempIv, tempIv.Length);
+            Array.Copy(fullCipher, tempIv.Length, cipher, 0, cipher.Length);
+
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = tempKey;
+                aes.IV = tempIv;
+
+                ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+
+                using (MemoryStream msDecrypt = new MemoryStream(cipher))
+                {
+                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                    using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                    {
+                        string plaintext = srDecrypt.ReadToEnd();
+                        
+                        return plaintext;
+                    }
+                }
+            }
+        }
+        
+        public byte[] KeyGen()
+        {
+            using (Aes aes = Aes.Create())
+            {
+                aes.GenerateKey();
+                return aes.Key;
+            }
         }
 
-        public string Decrypter(string zipedPwd)
+        public byte[] IVGen()
+        {
+            using (Aes aes = Aes.Create())
+            {
+                aes.GenerateIV();
+                return aes.IV;
+            }
+        }
+        
+        /*public string Decrypter(string zipedPwd)
         {
             byte[] decodedCipherText = Convert.FromBase64String(zipedPwd);
             byte[] encryptedText = MilkshakeExtractor(decodedCipherText);
             byte[] decryptOutput = CryptNDecrypt(encryptedText, false);
             return Encoding.UTF8.GetString(decryptOutput);
-        }
+        }*/
 
         private byte[] CryptNDecrypt(byte[] inputBytes, bool forEncrypt)
         {
@@ -51,17 +128,7 @@ namespace PwdKeychain.Implementations
 
             return outputBytes;
         }
-
-        private byte[] KeyGen()
-        {
-            byte[] key = new byte[16];
-            using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
-            {
-                rng.GetBytes(key);
-            }
-            return key;
-        }
-
+        
         private void ShardGen()
         {
             int halfLenght = _key.Length / 2;

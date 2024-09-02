@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Reflection;
 using System.Windows.Forms;
 using PwdKeychain.Implementations;
@@ -56,8 +57,8 @@ namespace PwdKeychain.Forms
         {
             if (accGridView.SelectedRows.Count > 0)
             {
-                int index = accGridView.SelectedRows[0].Index;
-                PasswordEntry pwdInd = _dbManager.GetAllPass()[index];
+                DataGridViewRow row = accGridView.SelectedRows[0];
+                PasswordEntry pwdInd = _dbManager.GetOnePass(row.Cells["Id"].Value.ToString());
 
                 using (EntryAndEditForm editForm = new EntryAndEditForm("Edit", "Cancel", Resources.EntryAndEditForm_customForm_Editing_existing_account))
                 {

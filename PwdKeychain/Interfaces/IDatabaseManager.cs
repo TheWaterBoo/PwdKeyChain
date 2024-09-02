@@ -11,5 +11,6 @@ namespace PwdKeychain.Interfaces
         void DeletePassword(List<string> idList);
         void DropDatabase();
         BindingList<PasswordEntry> GetAllPass();
+        PasswordEntry GetOnePass(string passId);
     }
 }
