@@ -42,7 +42,6 @@ namespace PwdKeychain.Forms
                     positiveButton_Click(sender, null);
                     break;
             }
-            
         }
 
         private void ConfirmationForm_Load(object sender, EventArgs e)

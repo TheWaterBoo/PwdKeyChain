@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+using System.Data.SQLite;
 using System.Reflection;
 using System.Windows.Forms;
 using PwdKeychain.Implementations;
@@ -43,13 +44,29 @@ namespace PwdKeychain.Forms
 
         private void addDataButton_Click(object sender, EventArgs e)
         {
-            using (EntryAndEditForm entryForm = new EntryAndEditForm("Save", "Cancel", Resources.EntryAndEditForm_customForm_Add_new_account))
+            try
             {
-                if (entryForm.ShowDialog() == DialogResult.OK)
+                using (EntryAndEditForm entryForm = new EntryAndEditForm("Save", "Cancel",
+                           Resources.EntryAndEditForm_customForm_Add_new_account))
                 {
-                    _dbManager.AddPassword(entryForm.Website, entryForm.Username, entryForm.Password);
-                    GetGridViewData();
+                    if (entryForm.ShowDialog() == DialogResult.OK)
+                    {
+                        _dbManager.AddPassword(entryForm.Website, entryForm.Username, entryForm.Password);
+                        GetGridViewData();
+                    }
                 }
+            }
+            catch (FormatException ex)
+            {
+                ErrorForm err = new ErrorForm("Format Exception!", ex.ToString());
+            }
+            catch (SQLiteException ex)
+            {
+                ErrorForm err = new ErrorForm("SQLite Exception!", ex.ToString());
+            }
+            catch (Exception ex)
+            {
+                ErrorForm err = new ErrorForm("Exception!", ex.Message);
             }
         }
 

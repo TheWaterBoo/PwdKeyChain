@@ -3,8 +3,6 @@ using System.Data.SQLite;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Security.Cryptography;
-using System.Text;
 using PwdKeychain.Models;
 
 namespace PwdKeychain.Implementations
@@ -83,7 +81,7 @@ namespace PwdKeychain.Implementations
                     command.ExecuteNonQuery();
                 }
 
-                KeyDbKeeper(connection, key);
+                EditKey(Convert.ToInt32(passId), key);
             }
         }
 
@@ -92,12 +90,21 @@ namespace PwdKeychain.Implementations
             using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
-                string deleteQuery = "DELETE FROM PasswordEntries WHERE Id = @Id";
-                using (var command = new SQLiteCommand(deleteQuery, connection))
+                foreach (var id in idList)
                 {
-                    foreach (var id in idList)
+                    //Delete data
+                    string deleteQuery = "DELETE FROM PasswordEntries WHERE Id = @Id";
+                    using (var command = new SQLiteCommand(deleteQuery, connection))
                     {
                         command.Parameters.AddWithValue("@Id", id);
+                        command.ExecuteNonQuery();
+                    }
+                    
+                    //Delete key
+                    string deleteKeyQuery = "DELETE FROM EncryptionKeys WHERE PasswordEntryId = @PasswordEntryId";
+                    using (var command = new SQLiteCommand(deleteKeyQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@PasswordEntryId", id);
                         command.ExecuteNonQuery();
                     }
                 }
@@ -149,6 +156,21 @@ namespace PwdKeychain.Implementations
             }
 
             return retrievedKey;
+        }
+
+        private void EditKey(int passwordEntryId, string newKey)
+        {
+            using (var connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+                string updateQuery = @"UPDATE EncryptionKeys SET Key = @Key WHERE PasswordEntryId = @PasswordEntryId";
+                using (var command = new SQLiteCommand(updateQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@PasswordEntryId", passwordEntryId);
+                    command.Parameters.AddWithValue("@Key", newKey);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
         public void DropDatabase()
