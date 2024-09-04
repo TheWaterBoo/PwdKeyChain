@@ -3,6 +3,8 @@ using System.Data.SQLite;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Windows.Forms;
+using PwdKeychain.Forms;
 using PwdKeychain.Models;
 
 namespace PwdKeychain.Implementations
@@ -10,7 +12,7 @@ namespace PwdKeychain.Implementations
     public class DatabaseManager : IDatabaseManager
     {
         private const string ConnectionString = "Data Source=PasswordDB.sqlite;Version=3;";
-        private readonly IBlower _blower = new Blower();
+        private readonly ICryptNDecrypt _cryptNDecrypt = new CryptNDecrypt();
 
         public DatabaseManager()
         {
@@ -42,9 +44,9 @@ namespace PwdKeychain.Implementations
             }
         }
 
-        public void AddPassword(string website, string username, string password)
+        public void AddPassword(string website, string username, string? password)
         {
-            string encryptPass = _blower.Encrypter(password, out var key);
+            string encryptPass = _cryptNDecrypt.Encrypter(password, out var key);
 
             using (var connection = new SQLiteConnection(ConnectionString))
             {
@@ -63,9 +65,9 @@ namespace PwdKeychain.Implementations
             }
         }
 
-        public void EditPassword(string passId, string website, string username, string password)
+        public void EditPassword(string passId, string website, string username, string? password)
         {
-            string editedEncryptPass = _blower.Encrypter(password, out var key);
+            string editedEncryptPass = _cryptNDecrypt.Encrypter(password, out var key);
 
             using (var connection = new SQLiteConnection(ConnectionString))
             {
@@ -99,7 +101,7 @@ namespace PwdKeychain.Implementations
                         command.Parameters.AddWithValue("@Id", id);
                         command.ExecuteNonQuery();
                     }
-                    
+
                     //Delete key
                     string deleteKeyQuery = "DELETE FROM EncryptionKeys WHERE PasswordEntryId = @PasswordEntryId";
                     using (var command = new SQLiteCommand(deleteKeyQuery, connection))
@@ -186,27 +188,39 @@ namespace PwdKeychain.Implementations
 
         public BindingList<PasswordEntry> GetAllPass()
         {
-            BindingList<PasswordEntry> entries = new BindingList<PasswordEntry>();
-            using (var connection = new SQLiteConnection(ConnectionString))
+            try
             {
-                connection.Open();
-                string selectQuery = "SELECT * FROM PasswordEntries";
-                using (var command = new SQLiteCommand(selectQuery, connection))
-                using (var reader = command.ExecuteReader())
-                    while (reader.Read())
-                    {
-                        int passEntryId = Convert.ToInt32(reader["Id"]);
-                        string tempKey = GetKey(passEntryId);
-                        entries.Add(new PasswordEntry(
-                            reader["Website"].ToString(),
-                            reader["Username"].ToString(),
-                            _blower.Decrypter(reader["Password"].ToString(), tempKey),
-                            reader["Id"].ToString()
-                        ));
-                    }
-            }
+                BindingList<PasswordEntry> entries = [];
+                using (var connection = new SQLiteConnection(ConnectionString))
+                {
+                    connection.Open();
+                    string selectQuery = "SELECT * FROM PasswordEntries";
+                    using (var command = new SQLiteCommand(selectQuery, connection))
+                    using (var reader = command.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            entries.Add(new PasswordEntry(
+                                reader["Website"].ToString(),
+                                reader["Username"].ToString(),
+                                reader["Id"].ToString()
+                            ));
+                        }
+                }
 
-            return entries;
+                return entries;
+            }
+            catch (FormatException ex)
+            {
+                throw;
+            }
+            catch (SQLiteException ex)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception();
+            }
         }
 
         public PasswordEntry GetOnePass(string passId)
@@ -225,7 +239,7 @@ namespace PwdKeychain.Implementations
                         if (reader.Read())
                         {
                             return new PasswordEntry(reader["Website"].ToString(), reader["Username"].ToString(),
-                                _blower.Decrypter(reader["Password"].ToString(), tempKey), reader["Id"].ToString());
+                                _cryptNDecrypt.Decrypter(reader["Password"].ToString(), tempKey), reader["Id"].ToString());
                         }
                     }
                 }

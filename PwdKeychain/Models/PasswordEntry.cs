@@ -1,18 +1,14 @@
 ﻿namespace PwdKeychain.Models
 {
-    public class PasswordEntry
+    public class PasswordEntry(string websiteName, string username, string? password, string id)
     {
-        public string WebsiteName { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string Id { get; set; }
-        
-        public PasswordEntry(string websiteName, string username, string password, string id)
+        public string WebsiteName { get; set; } = websiteName;
+        public string Username { get; set; } = username;
+        public string? Password { get; set; } = password;
+        public string Id { get; set; } = id;
+
+        public PasswordEntry(string websiteName, string username, string id) : this(websiteName, username, null, id)
         {
-            WebsiteName = websiteName;
-            Username = username;
-            Password = password;
-            Id = id;
         }
     }
 }

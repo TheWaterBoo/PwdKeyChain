@@ -6,11 +6,11 @@ using PwdKeychain.Interfaces;
 
 namespace PwdKeychain.Implementations
 {
-    public class Blower : IBlower
+    public class CryptNDecrypt : ICryptNDecrypt
     {
         private byte[] _key;
 
-        public string Encrypter(string plainText, out string key)
+        public string Encrypter(string? plainText, out string key)
         {
             _key = KeyGen();
             byte[] iv = IvGen();
@@ -44,7 +44,7 @@ namespace PwdKeychain.Implementations
             {
                 byte[] tempKey = Convert.FromBase64String(key);
                 byte[] fullCipher = Convert.FromBase64String(cipherText);
-            
+
                 byte[] tempIv = new byte[16];
                 byte[] cipher = new byte[fullCipher.Length - tempIv.Length];
                 Array.Copy(fullCipher, tempIv, tempIv.Length);
@@ -63,16 +63,19 @@ namespace PwdKeychain.Implementations
                         using (StreamReader srDecrypt = new StreamReader(csDecrypt))
                         {
                             string plaintext = srDecrypt.ReadToEnd();
-                        
+
                             return plaintext;
                         }
                     }
                 }
             }
-            catch (Exception e)
+            catch (FormatException ex)
             {
-                Console.WriteLine(e);
                 throw;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception();
             }
         }
         

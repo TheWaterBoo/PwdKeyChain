@@ -16,6 +16,8 @@
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -93,9 +95,9 @@
     <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Implementations\Blower.cs" />
+    <Compile Include="Implementations\CryptNDecrypt.cs" />
     <Compile Include="Implementations\DatabaseManager.cs" />
-    <Compile Include="Interfaces\IBlower.cs" />
+    <Compile Include="Interfaces\ICryptNDecrypt.cs" />
     <Compile Include="Interfaces\IDatabaseManager.cs" />
     <Compile Include="Models\PasswordEntry.cs" />
     <Compile Include="Program.cs" />
@@ -148,6 +150,8 @@
     <Content Include="Resources\add32.png" />
     <Content Include="Resources\delete32.png" />
     <Content Include="Resources\pencil32.png" />
+    <Content Include="Resources\error32.png" />
+    <Content Include="Resources\warnIco32.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

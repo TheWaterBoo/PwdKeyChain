@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
-using System.Data.SQLite;
 using System.Reflection;
 using System.Windows.Forms;
 using PwdKeychain.Implementations;
@@ -27,13 +25,26 @@ namespace PwdKeychain.Forms
         {
             GetGridViewData();
             accGridView.Columns["Password"].Visible = false;
-            accGridView.Columns["Id"].Visible = true;
+            accGridView.Columns["Id"].Visible = false;
             accGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         }
 
         private void GetGridViewData()
         {
-            accGridView.DataSource = _dbManager.GetAllPass();
+            try
+            {
+                accGridView.DataSource = _dbManager.GetAllPass();
+            }
+            catch (FormatException ex)
+            {
+                using ErrorForm err = new ErrorForm(ex.ToString(), "Format Exception");
+                err.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                using ErrorForm err = new ErrorForm(ex.Message, "Exception");
+                err.ShowDialog();
+            }
         }
 
         private void ShowVersion()
@@ -56,14 +67,6 @@ namespace PwdKeychain.Forms
                     }
                 }
             }
-            catch (FormatException ex)
-            {
-                ErrorForm err = new ErrorForm("Format Exception!", ex.ToString());
-            }
-            catch (SQLiteException ex)
-            {
-                ErrorForm err = new ErrorForm("SQLite Exception!", ex.ToString());
-            }
             catch (Exception ex)
             {
                 ErrorForm err = new ErrorForm("Exception!", ex.Message);
@@ -77,7 +80,8 @@ namespace PwdKeychain.Forms
                 DataGridViewRow row = accGridView.SelectedRows[0];
                 PasswordEntry pwdInd = _dbManager.GetOnePass(row.Cells["Id"].Value.ToString());
 
-                using (EntryAndEditForm editForm = new EntryAndEditForm("Edit", "Cancel", Resources.EntryAndEditForm_customForm_Editing_existing_account))
+                using (EntryAndEditForm editForm = new EntryAndEditForm("Update", "Cancel",
+                           Resources.EntryAndEditForm_customForm_Editing_existing_account))
                 {
                     editForm.Website = pwdInd.WebsiteName;
                     editForm.Username = pwdInd.Username;
@@ -126,6 +130,7 @@ namespace PwdKeychain.Forms
             accGridView.ClearSelection();
         }
 
+        //Temporal method
         private void Shortcuts()
         {
             ShortcutKeys = Keys.Control | Keys.N;

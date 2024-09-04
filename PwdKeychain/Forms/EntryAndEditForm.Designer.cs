@@ -39,11 +39,12 @@ namespace PwdKeychain.Forms
             this.label3 = new System.Windows.Forms.Label();
             this.pwdTxtBox = new System.Windows.Forms.TextBox();
             this.cancelButton = new System.Windows.Forms.Button();
+            this.passwordChecker = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // entryAndEditButt
             // 
-            this.entryAndEditButt.Location = new System.Drawing.Point(108, 136);
+            this.entryAndEditButt.Location = new System.Drawing.Point(108, 147);
             this.entryAndEditButt.Name = "entryAndEditButt";
             this.entryAndEditButt.Size = new System.Drawing.Size(75, 23);
             this.entryAndEditButt.TabIndex = 0;
@@ -96,10 +97,11 @@ namespace PwdKeychain.Forms
             this.pwdTxtBox.Name = "pwdTxtBox";
             this.pwdTxtBox.Size = new System.Drawing.Size(254, 20);
             this.pwdTxtBox.TabIndex = 3;
+            this.pwdTxtBox.UseSystemPasswordChar = true;
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(208, 136);
+            this.cancelButton.Location = new System.Drawing.Point(208, 147);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 4;
@@ -108,11 +110,22 @@ namespace PwdKeychain.Forms
             this.cancelButton.UseVisualStyleBackColor = true;
             this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
             // 
+            // passwordChecker
+            // 
+            this.passwordChecker.Location = new System.Drawing.Point(118, 108);
+            this.passwordChecker.Name = "passwordChecker";
+            this.passwordChecker.Size = new System.Drawing.Size(102, 17);
+            this.passwordChecker.TabIndex = 5;
+            this.passwordChecker.Text = "Show password";
+            this.passwordChecker.UseVisualStyleBackColor = true;
+            this.passwordChecker.CheckStateChanged += new System.EventHandler(this.passwordChecker_CheckStateChanged);
+            // 
             // EntryAndEditForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(394, 171);
+            this.ClientSize = new System.Drawing.Size(394, 182);
+            this.Controls.Add(this.passwordChecker);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.pwdTxtBox);
             this.Controls.Add(this.label3);
@@ -134,6 +147,8 @@ namespace PwdKeychain.Forms
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+
+        private System.Windows.Forms.CheckBox passwordChecker;
 
         private System.Windows.Forms.Button cancelButton;
 

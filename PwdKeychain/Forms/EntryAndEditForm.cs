@@ -18,7 +18,7 @@ namespace PwdKeychain.Forms
             set => userTxtBox.Text = value;
         }
 
-        public string Password
+        public string? Password
         {
             get => pwdTxtBox.Text;
             set => pwdTxtBox.Text = value;
@@ -65,6 +65,11 @@ namespace PwdKeychain.Forms
                     entryAndEditButt_Click(sender, null);
                     break;
             }
+        }
+
+        private void passwordChecker_CheckStateChanged(object sender, EventArgs e)
+        {
+            pwdTxtBox.UseSystemPasswordChar = !passwordChecker.Checked;
         }
     }
 }

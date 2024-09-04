@@ -82,6 +82,16 @@ namespace PwdKeychain.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap error32 {
+            get {
+                object obj = ResourceManager.GetObject("error32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap pencil32 {
             get {
                 object obj = ResourceManager.GetObject("pencil32", resourceCulture);

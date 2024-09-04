@@ -31,19 +31,13 @@ namespace PwdKeychain.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.MsgErrorLabel = new System.Windows.Forms.Label();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ErrorForm));
             this.closeButt = new System.Windows.Forms.Button();
             this.copyAndClose = new System.Windows.Forms.Button();
+            this.ErrMsgPanel = new System.Windows.Forms.Panel();
+            this.ErrMsgLabel = new System.Windows.Forms.Label();
+            this.ErrMsgPanel.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // MsgErrorLabel
-            // 
-            this.MsgErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.MsgErrorLabel.Location = new System.Drawing.Point(12, 9);
-            this.MsgErrorLabel.Name = "MsgErrorLabel";
-            this.MsgErrorLabel.Size = new System.Drawing.Size(483, 150);
-            this.MsgErrorLabel.TabIndex = 0;
-            this.MsgErrorLabel.Text = "Exception Messages Here";
             // 
             // closeButt
             // 
@@ -65,33 +59,55 @@ namespace PwdKeychain.Forms
             this.copyAndClose.UseVisualStyleBackColor = true;
             this.copyAndClose.Click += new System.EventHandler(this.copyAndClose_Click);
             // 
+            // ErrMsgPanel
+            // 
+            this.ErrMsgPanel.AutoScroll = true;
+            this.ErrMsgPanel.Controls.Add(this.ErrMsgLabel);
+            this.ErrMsgPanel.Location = new System.Drawing.Point(12, 12);
+            this.ErrMsgPanel.Name = "ErrMsgPanel";
+            this.ErrMsgPanel.Padding = new System.Windows.Forms.Padding(0, 1, 0, 0);
+            this.ErrMsgPanel.Size = new System.Drawing.Size(483, 161);
+            this.ErrMsgPanel.TabIndex = 3;
+            // 
+            // ErrMsgLabel
+            // 
+            this.ErrMsgLabel.AutoSize = true;
+            this.ErrMsgLabel.Location = new System.Drawing.Point(3, 1);
+            this.ErrMsgLabel.MaximumSize = new System.Drawing.Size(460, 0);
+            this.ErrMsgLabel.Name = "ErrMsgLabel";
+            this.ErrMsgLabel.Size = new System.Drawing.Size(106, 13);
+            this.ErrMsgLabel.TabIndex = 0;
+            this.ErrMsgLabel.Text = "Exceptions Info Here";
+            // 
             // ErrorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(507, 214);
+            this.Controls.Add(this.ErrMsgPanel);
             this.Controls.Add(this.copyAndClose);
             this.Controls.Add(this.closeButt);
-            this.Controls.Add(this.MsgErrorLabel);
             this.Cursor = System.Windows.Forms.Cursors.Default;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Location = new System.Drawing.Point(15, 15);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ErrorForm";
-            this.ShowIcon = false;
-            this.ShowInTaskbar = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ExceptionTitle";
+            this.ErrMsgPanel.ResumeLayout(false);
+            this.ErrMsgPanel.PerformLayout();
             this.ResumeLayout(false);
         }
+
+        private System.Windows.Forms.Panel ErrMsgPanel;
+        private System.Windows.Forms.Label ErrMsgLabel;
 
         private System.Windows.Forms.Button copyAndClose;
 
         private System.Windows.Forms.Button closeButt;
-
-        private System.Windows.Forms.Label MsgErrorLabel;
 
         #endregion
     }
