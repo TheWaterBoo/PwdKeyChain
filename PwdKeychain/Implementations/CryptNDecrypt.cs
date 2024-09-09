@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using PwdKeychain.Interfaces;
+using PwdKeychain.Utils;
 
 namespace PwdKeychain.Implementations
 {
@@ -10,40 +11,55 @@ namespace PwdKeychain.Implementations
     {
         private byte[] _key;
 
-        public string Encrypter(string? plainText, out string key)
+        public string Encrypter(string pwd, out string key)
         {
-            _key = KeyGen();
-            byte[] iv = IvGen();
-
-            using (Aes aes = Aes.Create())
+            try
             {
-                aes.Key = _key;
-                aes.IV = iv;
+                _key = KeyGen();
+                byte[] iv = IvGen();
 
-                ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
-
-                using (MemoryStream msEncrypt = new MemoryStream())
+                using (Aes aes = Aes.Create())
                 {
-                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                    using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
-                    {
-                        swEncrypt.Write(plainText);
-                    }
+                    aes.Key = _key;
+                    aes.IV = iv;
 
-                    byte[] encrypted = msEncrypt.ToArray();
-                    key = Convert.ToBase64String(_key);
-                    
-                    return Convert.ToBase64String(iv.Concat(encrypted).ToArray());
+                    ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+
+                    using (MemoryStream msEncrypt = new MemoryStream())
+                    {
+                        using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                        {
+                            swEncrypt.Write(pwd);
+                        }
+
+                        byte[] encrypted = msEncrypt.ToArray();
+                        key = Convert.ToBase64String(_key);
+
+                        return Convert.ToBase64String(iv.Concat(encrypted).ToArray());
+                    }
                 }
+            }
+            catch (FormatException ex)
+            {
+                HandleException(ex, nameof(Encrypter), [pwd], "FormatException", 1);
+                key = "";
+                return "";
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex, nameof(Encrypter), [pwd], "Exception", 2);
+                key = "";
+                return "";
             }
         }
 
-        public string Decrypter(string cipherText, string key)
+        public string Decrypter(string zipedPwd, string key)
         {
             try
             {
                 byte[] tempKey = Convert.FromBase64String(key);
-                byte[] fullCipher = Convert.FromBase64String(cipherText);
+                byte[] fullCipher = Convert.FromBase64String(zipedPwd);
 
                 byte[] tempIv = new byte[16];
                 byte[] cipher = new byte[fullCipher.Length - tempIv.Length];
@@ -71,16 +87,24 @@ namespace PwdKeychain.Implementations
             }
             catch (FormatException ex)
             {
-                throw;
+                HandleException(ex, nameof(Decrypter), [zipedPwd, key], "FormatException", 1);
+                return "";
             }
             catch (Exception ex)
             {
-                throw new Exception();
+                HandleException(ex, nameof(Decrypter), [zipedPwd, key], "Exception", 1);
+                return "";
             }
         }
-        
+
+        private static void HandleException(Exception ex, string? method, object[]? args, string title, int exitCode)
+        {
+            var customEx = new CustomExceptions(ex, nameof(CryptNDecrypt), method, args);
+            customEx.ShowErrDialog(title, exitCode);
+        }
+
         //Generates a pseudo-random key
-        private byte[] KeyGen()
+        private static byte[] KeyGen()
         {
             using (Aes aes = Aes.Create())
             {
@@ -90,7 +114,7 @@ namespace PwdKeychain.Implementations
         }
 
         //Generates a pseudo-random iv
-        private byte[] IvGen()
+        private static byte[] IvGen()
         {
             using (Aes aes = Aes.Create())
             {

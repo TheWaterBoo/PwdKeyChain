@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Reflection;
 using System.Windows.Forms;
 using PwdKeychain.Implementations;
 using PwdKeychain.Interfaces;
 using PwdKeychain.Models;
 using PwdKeychain.Properties;
+using PwdKeychain.Utils;
 
 namespace PwdKeychain.Forms
 {
@@ -31,20 +33,7 @@ namespace PwdKeychain.Forms
 
         private void GetGridViewData()
         {
-            try
-            {
-                accGridView.DataSource = _dbManager.GetAllPass();
-            }
-            catch (FormatException ex)
-            {
-                using ErrorForm err = new ErrorForm(ex.ToString(), "Format Exception");
-                err.ShowDialog();
-            }
-            catch (Exception ex)
-            {
-                using ErrorForm err = new ErrorForm(ex.Message, "Exception");
-                err.ShowDialog();
-            }
+            accGridView.DataSource = _dbManager.GetAllPass();
         }
 
         private void ShowVersion()
@@ -134,13 +123,6 @@ namespace PwdKeychain.Forms
         private void Shortcuts()
         {
             ShortcutKeys = Keys.Control | Keys.N;
-        }
-
-        //Temporal Button, Remove later...
-        private void toolStripButton4_Click(object sender, EventArgs e)
-        {
-            _dbManager.DropDatabase();
-            Dispose();
         }
     }
 }

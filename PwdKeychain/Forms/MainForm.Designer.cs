@@ -35,7 +35,6 @@
             this.addDataButton = new System.Windows.Forms.ToolStripButton();
             this.editDataButton = new System.Windows.Forms.ToolStripButton();
             this.deleteDataButton = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.accGridView = new System.Windows.Forms.DataGridView();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -59,7 +58,7 @@
             // toolStrip1
             // 
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.addDataButton, this.editDataButton, this.deleteDataButton, this.toolStripButton4 });
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.addDataButton, this.editDataButton, this.deleteDataButton });
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(314, 25);
@@ -94,15 +93,6 @@
             this.deleteDataButton.Size = new System.Drawing.Size(60, 22);
             this.deleteDataButton.Text = "Delete";
             this.deleteDataButton.Click += new System.EventHandler(this.deleteDataButton_Click);
-            // 
-            // toolStripButton4
-            // 
-            this.toolStripButton4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton4.Image")));
-            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton4.Name = "toolStripButton4";
-            this.toolStripButton4.Size = new System.Drawing.Size(53, 22);
-            this.toolStripButton4.Text = "Drop";
-            this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click);
             // 
             // toolStripButton3
             // 
@@ -164,8 +154,6 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
 
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
-
-        private System.Windows.Forms.ToolStripButton toolStripButton4;
 
         private System.Windows.Forms.DataGridView accGridView;
 

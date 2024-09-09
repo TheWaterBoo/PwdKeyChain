@@ -14,7 +14,7 @@ namespace PwdKeychain.Forms
 
         private void ShowErrorMsg(string errMsg, string excpTitle)
         {
-            Text = excpTitle;
+            Text = excpTitle + " - Custom Exception";
             ErrMsgLabel.Text = errMsg;
         }
 
