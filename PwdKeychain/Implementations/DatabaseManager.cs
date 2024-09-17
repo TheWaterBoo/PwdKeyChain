@@ -46,7 +46,7 @@ namespace PwdKeychain.Implementations
             }
             catch (SQLiteException ex)
             {
-                HandleException(ex, nameof(CreateDatabase), [], "Unable to create database table", 1);
+                HandleException(ex, nameof(CreateDatabase), [], "Unable to create database table");
             }
         }
 
@@ -75,12 +75,12 @@ namespace PwdKeychain.Implementations
             catch (SQLiteException ex)
             {
                 HandleException(ex, nameof(AddPassword), [website, username, "Any Password"],
-                    "SQLiteException, Unable to add data", 1);
+                    "SQLiteException, Unable to add data");
             }
             catch (Exception ex)
             {
                 HandleException(ex, nameof(AddPassword), [website, username, "Any Password"],
-                    "Exception in AddPassword", 1);
+                    "Exception in AddPassword");
             }
         }
 
@@ -110,12 +110,12 @@ namespace PwdKeychain.Implementations
             catch (SQLiteException ex)
             {
                 HandleException(ex, nameof(EditPassword), [passId, website, username, "Any Password"],
-                    "SQLiteException - Cannot edit existing data", 1);
+                    "SQLiteException - Cannot edit existing data");
             }
             catch (Exception ex)
             {
                 HandleException(ex, nameof(EditPassword), [passId, website, username, "Any Password"],
-                    "Exception in EditPassword", 1);
+                    "Exception in EditPassword");
             }
         }
 
@@ -149,7 +149,7 @@ namespace PwdKeychain.Implementations
             catch (SQLiteException ex)
             {
                 HandleException(ex, nameof(AddPassword), [idList],
-                    "SQLiteException - An error Ocurred while deleting data", 1);
+                    "SQLiteException - An error Ocurred while deleting data");
             }
         }
 
@@ -178,7 +178,7 @@ namespace PwdKeychain.Implementations
             }
             catch (SQLiteException ex)
             {
-                HandleException(ex, nameof(GetAllPass), [], "SQLiteException - Unable to get user data", 1);
+                HandleException(ex, nameof(GetAllPass), [], "SQLiteException - Unable to get user data");
                 return [];
             }
         }
@@ -210,7 +210,7 @@ namespace PwdKeychain.Implementations
             }
             catch (SQLiteException ex)
             {
-                HandleException(ex, nameof(AddPassword), [passId], "Unable to create database table", 1);
+                HandleException(ex, nameof(GetOnePass), [passId], "Unable to create database table");
                 return null;
             }
         }
@@ -277,10 +277,10 @@ namespace PwdKeychain.Implementations
             }
         }
 
-        private static void HandleException(Exception ex, string? method, object[]? args, string title, int exitCode)
+        private static void HandleException(Exception ex, string? method, object[]? args, string title)
         {
-            var customEx = new CustomExceptions(ex, nameof(CreateDatabase), method, args);
-            customEx.ShowErrDialog(title, exitCode);
+            var customEx = new CustomExceptions(ex, nameof(DatabaseManager), method, args);
+            customEx.ShowErrDialog(title);
         }
     }
 }

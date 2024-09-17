@@ -34,11 +34,11 @@ public class CustomExceptions
                $"[FunctionArguments]: {FunctionArgsString()}";
     }
 
-    public void ShowErrDialog(string excepTitle, int exitCode)
+    public void ShowErrDialog(string excepTitle)
     {
         using ErrorForm errDialog = new ErrorForm(ExceptionMsg(), excepTitle);
         errDialog.ShowDialog();
-        Environment.Exit(exitCode);
+        Application.Exit();
     }
     
     private static int? GetLineNumber(Exception exception)

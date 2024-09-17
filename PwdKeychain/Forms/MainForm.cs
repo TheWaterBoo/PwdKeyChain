@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
 using System.Reflection;
 using System.Windows.Forms;
 using PwdKeychain.Implementations;
 using PwdKeychain.Interfaces;
 using PwdKeychain.Models;
 using PwdKeychain.Properties;
-using PwdKeychain.Utils;
 
 namespace PwdKeychain.Forms
 {

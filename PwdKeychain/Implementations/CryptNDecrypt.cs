@@ -42,13 +42,13 @@ namespace PwdKeychain.Implementations
             }
             catch (FormatException ex)
             {
-                HandleException(ex, nameof(Encrypter), [pwd], "FormatException", 1);
+                HandleException(ex, nameof(Encrypter), [pwd], "FormatException");
                 key = "";
                 return "";
             }
             catch (Exception ex)
             {
-                HandleException(ex, nameof(Encrypter), [pwd], "Exception", 2);
+                HandleException(ex, nameof(Encrypter), [pwd], "Exception");
                 key = "";
                 return "";
             }
@@ -87,20 +87,20 @@ namespace PwdKeychain.Implementations
             }
             catch (FormatException ex)
             {
-                HandleException(ex, nameof(Decrypter), [zipedPwd, key], "FormatException", 1);
+                HandleException(ex, nameof(Decrypter), [zipedPwd, key], "FormatException");
                 return "";
             }
             catch (Exception ex)
             {
-                HandleException(ex, nameof(Decrypter), [zipedPwd, key], "Exception", 1);
+                HandleException(ex, nameof(Decrypter), [zipedPwd, key], "Exception");
                 return "";
             }
         }
 
-        private static void HandleException(Exception ex, string? method, object[]? args, string title, int exitCode)
+        private static void HandleException(Exception ex, string? method, object[]? args, string title)
         {
             var customEx = new CustomExceptions(ex, nameof(CryptNDecrypt), method, args);
-            customEx.ShowErrDialog(title, exitCode);
+            customEx.ShowErrDialog(title);
         }
 
         //Generates a pseudo-random key
