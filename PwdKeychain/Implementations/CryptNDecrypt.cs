@@ -1,112 +1,75 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using PwdKeychain.Interfaces;
-using PwdKeychain.Utils;
 
 namespace PwdKeychain.Implementations
 {
     public class CryptNDecrypt : ICryptNDecrypt
     {
-        private byte[] _key;
-
         public string Encrypter(string pwd, out string key)
         {
-            try
+            var encryptionKey = KeyGen();
+            var iv = IvGen();
+            
+            using (var aes = Aes.Create())
             {
-                _key = KeyGen();
-                byte[] iv = IvGen();
+                aes.Key = encryptionKey;
+                aes.IV = iv;
 
-                using (Aes aes = Aes.Create())
+                var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+
+                using (var memoryStream = new MemoryStream())
                 {
-                    aes.Key = _key;
-                    aes.IV = iv;
-
-                    ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
-
-                    using (MemoryStream msEncrypt = new MemoryStream())
+                    using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
+                    using (var streamWriter = new StreamWriter(cryptoStream))
                     {
-                        using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
-                        {
-                            swEncrypt.Write(pwd);
-                        }
-
-                        byte[] encrypted = msEncrypt.ToArray();
-                        key = Convert.ToBase64String(_key);
-
-                        return Convert.ToBase64String(iv.Concat(encrypted).ToArray());
+                        streamWriter.Write(pwd);
                     }
+
+                    var encrypted = memoryStream.ToArray();
+                    key = Convert.ToBase64String(encryptionKey);
+
+                    return Convert.ToBase64String(iv.Concat(encrypted).ToArray());
                 }
-            }
-            catch (FormatException ex)
-            {
-                HandleException(ex, nameof(Encrypter), [pwd], "FormatException");
-                key = "";
-                return "";
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex, nameof(Encrypter), [pwd], "Exception");
-                key = "";
-                return "";
             }
         }
 
         public string Decrypter(string zipedPwd, string key)
         {
-            try
+            var tempKey = Convert.FromBase64String(key);
+            var fullCipher = Convert.FromBase64String(zipedPwd);
+
+            const int ivSize = 16;
+            if (fullCipher.Length < ivSize)
+                throw new FormatException("The cipher text is too short to contain the Initialization Vector");
+            
+            var tempIv = new byte[ivSize];
+            Array.Copy(fullCipher, tempIv, tempIv.Length);
+            
+            var cipher = new byte[fullCipher.Length - tempIv.Length];
+            Array.Copy(fullCipher, tempIv.Length, cipher, 0, cipher.Length);
+
+            using (var aes = Aes.Create())
             {
-                byte[] tempKey = Convert.FromBase64String(key);
-                byte[] fullCipher = Convert.FromBase64String(zipedPwd);
+                aes.Key = tempKey;
+                aes.IV = tempIv;
 
-                byte[] tempIv = new byte[16];
-                byte[] cipher = new byte[fullCipher.Length - tempIv.Length];
-                Array.Copy(fullCipher, tempIv, tempIv.Length);
-                Array.Copy(fullCipher, tempIv.Length, cipher, 0, cipher.Length);
+                var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
 
-                using (Aes aes = Aes.Create())
+                using (var memoryStream = new MemoryStream(cipher))
                 {
-                    aes.Key = tempKey;
-                    aes.IV = tempIv;
-
-                    ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-
-                    using (MemoryStream msDecrypt = new MemoryStream(cipher))
+                    using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
+                    using (var streamReader = new StreamReader(cryptoStream))
                     {
-                        using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                        using (StreamReader srDecrypt = new StreamReader(csDecrypt))
-                        {
-                            string plaintext = srDecrypt.ReadToEnd();
-
-                            return plaintext;
-                        }
+                        return streamReader.ReadToEnd();
                     }
                 }
             }
-            catch (FormatException ex)
-            {
-                HandleException(ex, nameof(Decrypter), [zipedPwd, key], "FormatException");
-                return "";
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex, nameof(Decrypter), [zipedPwd, key], "Exception");
-                return "";
-            }
-        }
-
-        private static void HandleException(Exception ex, string? method, object[]? args, string title)
-        {
-            var customEx = new CustomExceptions(ex, nameof(CryptNDecrypt), method, args);
-            customEx.ShowErrDialog(title);
         }
 
         //Generates a pseudo-random key
         private static byte[] KeyGen()
         {
-            using (Aes aes = Aes.Create())
+            using (var aes = Aes.Create())
             {
                 aes.GenerateKey();
                 return aes.Key;
@@ -116,7 +79,7 @@ namespace PwdKeychain.Implementations
         //Generates a pseudo-random iv
         private static byte[] IvGen()
         {
-            using (Aes aes = Aes.Create())
+            using (var aes = Aes.Create())
             {
                 aes.GenerateIV();
                 return aes.IV;

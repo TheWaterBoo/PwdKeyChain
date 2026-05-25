@@ -1,23 +1,25 @@
-﻿using System;
-using System.Windows.Forms;
-using PwdKeychain.Properties;
+﻿using System.ComponentModel;
 
 namespace PwdKeychain.Forms
 {
+    [Serializable]
     public partial class EntryAndEditForm : Form
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Website
         {
             get => websiteTxtBox.Text;
             set => websiteTxtBox.Text = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Username
         {
             get => userTxtBox.Text;
             set => userTxtBox.Text = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string? Password
         {
             get => pwdTxtBox.Text;

@@ -1,27 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Windows.Forms;
+﻿using System.Reflection;
 using PwdKeychain.Implementations;
 using PwdKeychain.Interfaces;
 using PwdKeychain.Models;
 using PwdKeychain.Properties;
+using System.ComponentModel;
 
 namespace PwdKeychain.Forms
 {
     public partial class MainForm : Form
     {
-        public Keys ShortcutKeys { get; set; }
-        private IDatabaseManager _dbManager = new DatabaseManager();
+        private readonly IDatabaseManager _dbManager;
 
-        public MainForm()
+        public MainForm(IDatabaseManager dbManager)
         {
+            _dbManager = dbManager;
             InitializeComponent();
-            InitiGridView();
+            InitGridView();
             ShowVersion();
         }
 
-        private void InitiGridView()
+        private void InitGridView()
         {
             GetGridViewData();
             accGridView.Columns["Password"].Visible = false;
@@ -115,12 +113,6 @@ namespace PwdKeychain.Forms
         private void MainForm_Load(object sender, EventArgs e)
         {
             accGridView.ClearSelection();
-        }
-
-        //Temporal method
-        private void Shortcuts()
-        {
-            ShortcutKeys = Keys.Control | Keys.N;
         }
     }
 }

@@ -1,10 +1,7 @@
 ﻿using PwdKeychain.Interfaces;
 using System.Data.SQLite;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using PwdKeychain.Models;
-using PwdKeychain.Utils;
 
 namespace PwdKeychain.Implementations
 {
@@ -279,8 +276,8 @@ namespace PwdKeychain.Implementations
 
         private static void HandleException(Exception ex, string? method, object[]? args, string title)
         {
-            var customEx = new CustomExceptions(ex, nameof(DatabaseManager), method, args);
-            customEx.ShowErrDialog(title);
+            // var customEx = new ExceptionMetadata(ex, nameof(DatabaseManager), method, args);
+            // customEx.ShowErrDialog(title);
         }
     }
 }

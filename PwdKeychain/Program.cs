@@ -1,23 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using PwdKeychain.Forms;
+using PwdKeychain.Implementations;
+using PwdKeychain.Utils;
 
-namespace PwdKeychain
+namespace PwdKeyChain
 {
     internal static class Program
     {
         /// <summary>
-        /// Punto de entrada principal para la aplicación.
+        ///  The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            ApplicationConfiguration.Initialize();
+            var dbManager = new DatabaseManager();
+            
+            Application.ThreadException += Common_ThreadException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            
+            Application.Run(new MainForm(dbManager));
+        }
+        
+        private static void Common_ThreadException(object sender, ThreadExceptionEventArgs e)
+        {
+            ProcessUnhandledException(e.Exception);
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (e.ExceptionObject is Exception ex)
+            {
+                ProcessUnhandledException(ex);
+            }
+        }
+
+        private static void ProcessUnhandledException(Exception ex)
+        {
+            var metadata = new ExceptionMetadata(
+                Exception: ex,
+                ClassName: ex.TargetSite?.DeclaringType?.Name ?? "UnknownClass",
+                FunctionName: ex.TargetSite?.Name ?? "UnknownMethod",
+                FilePath: "Extracted via TargetSite"
+            );
+            
+            using (var errDialog = new ErrorForm(metadata.FormatExceptionDetails(), "Error Crítico!!"))
+            {
+                errDialog.ShowDialog();
+            }
+            
+            Environment.Exit(1);
         }
     }
 }
