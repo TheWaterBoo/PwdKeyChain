@@ -1,13 +1,14 @@
 ﻿using System.Security.Cryptography;
+using System.Text;
 using PwdKeychain.Interfaces;
 
 namespace PwdKeychain.Implementations
 {
-    public class CryptNDecrypt : ICryptNDecrypt
+    public class CryptNDecrypt(string masterPass) : ICryptNDecrypt
     {
-        public string Encrypter(string pwd, out string key)
+        public string Encrypter(string pwd, string id)
         {
-            var encryptionKey = KeyGen();
+            var encryptionKey = DeriveKeyFromContext(masterPass, id);
             var iv = IvGen();
             
             using (var aes = Aes.Create())
@@ -26,16 +27,14 @@ namespace PwdKeychain.Implementations
                     }
 
                     var encrypted = memoryStream.ToArray();
-                    key = Convert.ToBase64String(encryptionKey);
 
                     return Convert.ToBase64String(iv.Concat(encrypted).ToArray());
                 }
             }
         }
 
-        public string Decrypter(string zipedPwd, string key)
+        public string Decrypter(string zipedPwd, string id)
         {
-            var tempKey = Convert.FromBase64String(key);
             var fullCipher = Convert.FromBase64String(zipedPwd);
 
             const int ivSize = 16;
@@ -47,6 +46,8 @@ namespace PwdKeychain.Implementations
             
             var cipher = new byte[fullCipher.Length - tempIv.Length];
             Array.Copy(fullCipher, tempIv.Length, cipher, 0, cipher.Length);
+            
+            var tempKey = DeriveKeyFromContext(masterPass, id);
 
             using (var aes = Aes.Create())
             {
@@ -66,13 +67,13 @@ namespace PwdKeychain.Implementations
             }
         }
 
-        //Generates a pseudo-random key
-        private static byte[] KeyGen()
+        private static byte[] DeriveKeyFromContext(string masterPassword, string id)
         {
-            using (var aes = Aes.Create())
+            var passwordBytes = System.Text.Encoding.UTF8.GetBytes(masterPassword);
+            var pepperBytes = Encoding.UTF8.GetBytes(id); // El id se usa como sazonador para generar claves distintas
+            using (var pbkdf2 = new Rfc2898DeriveBytes(passwordBytes, pepperBytes, 10000, HashAlgorithmName.SHA256))
             {
-                aes.GenerateKey();
-                return aes.Key;
+                return pbkdf2.GetBytes(32);
             }
         }
 

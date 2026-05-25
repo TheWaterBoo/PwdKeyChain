@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-
-namespace PwdKeychain.Forms
+﻿namespace PwdKeychain.Forms
 {
     public partial class ConfirmationForm : Form
     {

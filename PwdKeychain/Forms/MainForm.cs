@@ -29,7 +29,7 @@ namespace PwdKeychain.Forms
 
         private void GetGridViewData()
         {
-            accGridView.DataSource = _dbManager.GetAllPass();
+            accGridView.DataSource = _dbManager.GetAllTableData();
         }
 
         private void ShowVersion()
@@ -40,21 +40,15 @@ namespace PwdKeychain.Forms
 
         private void addDataButton_Click(object sender, EventArgs e)
         {
-            try
+            using (var entryForm = new EntryAndEditForm("Save", "Cancel",
+                       Resources.EntryAndEditForm_customForm_Add_new_account))
             {
-                using (EntryAndEditForm entryForm = new EntryAndEditForm("Save", "Cancel",
-                           Resources.EntryAndEditForm_customForm_Add_new_account))
+                if (entryForm.ShowDialog() == DialogResult.OK)
                 {
-                    if (entryForm.ShowDialog() == DialogResult.OK)
-                    {
-                        _dbManager.AddPassword(entryForm.Website, entryForm.Username, entryForm.Password);
-                        GetGridViewData();
-                    }
+                    var newAccount = entryForm.GetAccountData();
+                    _dbManager.AddData(newAccount.WebsiteName, newAccount.Username, newAccount.Password);
+                    GetGridViewData();
                 }
-            }
-            catch (Exception ex)
-            {
-                ErrorForm err = new ErrorForm("Exception!", ex.Message);
             }
         }
 
@@ -62,20 +56,21 @@ namespace PwdKeychain.Forms
         {
             if (accGridView.SelectedRows.Count > 0)
             {
-                DataGridViewRow row = accGridView.SelectedRows[0];
-                PasswordEntry pwdInd = _dbManager.GetOnePass(row.Cells["Id"].Value.ToString());
+                var row = accGridView.SelectedRows[0];
+                var pwdInd = _dbManager.GetOneAccount(row.Cells["Id"].Value.ToString());
 
-                using (EntryAndEditForm editForm = new EntryAndEditForm("Update", "Cancel",
+                using (var editForm = new EntryAndEditForm("Update", "Cancel",
                            Resources.EntryAndEditForm_customForm_Editing_existing_account))
                 {
-                    editForm.Website = pwdInd.WebsiteName;
-                    editForm.Username = pwdInd.Username;
-                    editForm.Password = pwdInd.Password;
-                    string passId = pwdInd.Id;
+                    var editAccount = editForm.GetAccountData();
+                    editAccount.WebsiteName = pwdInd.WebsiteName;
+                    editAccount.Username = pwdInd.Username;
+                    editAccount.Password = pwdInd.Password;
+                    var passId = pwdInd.Id;
 
                     if (editForm.ShowDialog() == DialogResult.OK)
                     {
-                        _dbManager.EditPassword(passId, editForm.Website, editForm.Username, editForm.Password);
+                        _dbManager.EditData(passId, editAccount.WebsiteName, editAccount.Username, editAccount.Password);
                         GetGridViewData();
                     }
                 }
@@ -94,7 +89,7 @@ namespace PwdKeychain.Forms
                 }
 
                 if (deleteVerification.ShowDialog() != DialogResult.OK) return;
-                _dbManager.DeletePassword(idList);
+                _dbManager.DeleteData(idList);
                 GetGridViewData();
             }
         }

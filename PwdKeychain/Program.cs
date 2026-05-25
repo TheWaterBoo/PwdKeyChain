@@ -13,11 +13,11 @@ namespace PwdKeyChain
         private static void Main()
         {
             ApplicationConfiguration.Initialize();
-            var dbManager = new DatabaseManager();
-            
             Application.ThreadException += Common_ThreadException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             
+            var cryptNDecrypt = new CryptNDecrypt("TemporalMastePass");
+            var dbManager = new DatabaseManager(cryptNDecrypt);
             Application.Run(new MainForm(dbManager));
         }
         

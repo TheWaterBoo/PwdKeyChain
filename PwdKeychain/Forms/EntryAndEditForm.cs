@@ -1,30 +1,32 @@
 ﻿using System.ComponentModel;
+using PwdKeychain.Models;
 
 namespace PwdKeychain.Forms
 {
     [Serializable]
     public partial class EntryAndEditForm : Form
     {
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Website
-        {
-            get => websiteTxtBox.Text;
-            set => websiteTxtBox.Text = value;
-        }
-
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Username
-        {
-            get => userTxtBox.Text;
-            set => userTxtBox.Text = value;
-        }
-
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string? Password
-        {
-            get => pwdTxtBox.Text;
-            set => pwdTxtBox.Text = value;
-        }
+        private AccountEntry _accountEntry;
+        // [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        // public string Website
+        // {
+        //     get => websiteTxtBox.Text;
+        //     set => websiteTxtBox.Text = value;
+        // }
+        //
+        // [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        // public string Username
+        // {
+        //     get => userTxtBox.Text;
+        //     set => userTxtBox.Text = value;
+        // }
+        //
+        // [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        // public string? Password
+        // {
+        //     get => pwdTxtBox.Text;
+        //     set => pwdTxtBox.Text = value;
+        // }
         
         public EntryAndEditForm(string okButton, string noButton, string formTitle)
         {
@@ -54,16 +56,25 @@ namespace PwdKeychain.Forms
         private void EntryAndEditForm_Load(object sender, EventArgs e)
         {
             KeyPreview = true;
+            _accountEntry = new AccountEntry("", "", null, "");
+        }
+        
+        public AccountEntry GetAccountData()
+        {
+            _accountEntry.WebsiteName = websiteTxtBox.Text;
+            _accountEntry.Username = userTxtBox.Text;
+            _accountEntry.Password = pwdTxtBox.Text;
+            return _accountEntry;
         }
 
         private void EntryAndEditForm_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyValue)
             {
-                case 27:
+                case 27: //ESC Key
                     cancelButton_Click(sender, null);
                     break;
-                case 13:
+                case 13: //ENTER Key
                     entryAndEditButt_Click(sender, null);
                     break;
             }
