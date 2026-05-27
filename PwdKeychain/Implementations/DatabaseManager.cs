@@ -8,12 +8,16 @@ namespace PwdKeychain.Implementations
     public class DatabaseManager : IDatabaseManager
     {
         private const string ConnectionString = "Data Source=PwdKeyChainAccountsDb.sqlite;Version=3;";
-        private readonly ICryptNDecrypt _cryptNDecrypt;
+        private ICryptNDecrypt? _cryptNDecrypt;
 
-        public DatabaseManager(ICryptNDecrypt cryptNDecrypt)
+        public DatabaseManager()
+        {
+            CreateDatabase();
+        }
+
+        public void InitializeCryptor(ICryptNDecrypt cryptNDecrypt)
         {
             _cryptNDecrypt = cryptNDecrypt;
-            CreateDatabase();
         }
 
         private static void CreateDatabase()
@@ -30,6 +34,49 @@ namespace PwdKeychain.Implementations
                     CreationTime TEXT NOT NULL)";
                 using (var command = new SQLiteCommand(createTable, connection))
                     command.ExecuteNonQuery();
+
+                createTable =
+                    @"CREATE TABLE IF NOT EXISTS MainData 
+                    (Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Hash BLOB NOT NULL,
+                    Salt BLOB NOT NULL)";
+                using (var command = new SQLiteCommand(createTable, connection))
+                    command.ExecuteNonQuery();
+            }
+        }
+
+        public MainData GetStoredData()
+        {
+            using (var connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+                var query = @"SELECT Hash, Salt FROM MainData LIMIT 1";
+                using (var command = new SQLiteCommand(query, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    if (!reader.Read())
+                        return null;
+
+                    var hash = (byte[])reader["Hash"];
+                    var salt = (byte[])reader["Salt"];
+
+                    return new MainData(hash, salt);
+                }
+            }
+        }
+
+        public void StoreData(byte[] hash, byte[] salt)
+        {
+            using (var connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+                var insertQuery = "INSERT INTO MainData (Hash, Salt) VALUES (@Hash, @Salt)";
+                using (var command = new SQLiteCommand(insertQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@Hash", hash);
+                    command.Parameters.AddWithValue("@Salt", salt);
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
@@ -99,14 +146,6 @@ namespace PwdKeychain.Implementations
                         command.Parameters.AddWithValue("@Id", id);
                         command.ExecuteNonQuery();
                     }
-
-                    //Delete key
-                    var deleteKeyQuery = "DELETE FROM EncryptionKeys WHERE PasswordEntryId = @PasswordEntryId";
-                    using (var command = new SQLiteCommand(deleteKeyQuery, connection))
-                    {
-                        command.Parameters.AddWithValue("@PasswordEntryId", id);
-                        command.ExecuteNonQuery();
-                    }
                 }
             }
         }
@@ -144,12 +183,13 @@ namespace PwdKeychain.Implementations
                     command.Parameters.AddWithValue("@Id", passId);
                     using (var reader = command.ExecuteReader())
                     {
-                        if (!reader.Read()) return null;
+                        if (!reader.Read())
+                            throw new SQLiteException("An error occurred while reading the database");
+
                         var entryId = reader["Id"].ToString();
 
-                        return new AccountEntry(reader["Website"].ToString(), reader["Username"].ToString(),
-                            _cryptNDecrypt.Decrypter(reader["Password"].ToString(), entryId),
-                            reader["Id"].ToString());
+                        return new AccountEntry(reader["Website"].ToString()!, reader["Username"].ToString()!,
+                            _cryptNDecrypt.Decrypter(reader["Password"].ToString()!, entryId!), entryId!);
                     }
                 }
             }

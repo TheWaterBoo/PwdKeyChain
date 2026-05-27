@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using PwdKeychain.Models;
 
 namespace PwdKeychain.Interfaces
 {
     public interface IDatabaseManager
     {
+        void InitializeCryptor(ICryptNDecrypt cryptNDecrypt);
+        MainData GetStoredData();
+        void StoreData(byte[] hash, byte[] salt);
         void AddData(string website, string username, string? password);
         void EditData(string passId, string website, string username, string? password);
         void DeleteData(List<string> idList);

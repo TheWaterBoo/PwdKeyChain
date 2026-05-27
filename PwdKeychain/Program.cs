@@ -1,3 +1,4 @@
+using System.Data.SQLite;
 using PwdKeychain.Forms;
 using PwdKeychain.Implementations;
 using PwdKeychain.Utils;
@@ -13,14 +14,34 @@ namespace PwdKeyChain
         private static void Main()
         {
             ApplicationConfiguration.Initialize();
+            
             Application.ThreadException += Common_ThreadException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             
-            var cryptNDecrypt = new CryptNDecrypt("TemporalMastePass");
-            var dbManager = new DatabaseManager(cryptNDecrypt);
+            var dbManager = new DatabaseManager();
+            var storedData = dbManager.GetStoredData();
+
+            if (storedData == null)
+            {
+                using var registerForm = new RegistrationForm(dbManager);
+                
+                if (registerForm.ShowDialog() != DialogResult.OK) return;
+                
+                storedData = dbManager.GetStoredData();
+                if (storedData == null) throw new SQLiteException("Ocurrio un error al obtener los datos de la cuenta...");
+            }
+            
+            using var authorizationForm = new AuthorizationForm(storedData.Hash, storedData.Salt);
+            if (authorizationForm.ShowDialog() != DialogResult.OK) return;
+
+            var masterPassword = authorizationForm.UserPasswordInput;
+            
+            var cryptNDecrypt = new CryptNDecrypt(masterPassword, storedData.Salt);
+            dbManager.InitializeCryptor(cryptNDecrypt);
+            
             Application.Run(new MainForm(dbManager));
         }
-        
+
         private static void Common_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
             ProcessUnhandledException(e.Exception);
@@ -42,12 +63,12 @@ namespace PwdKeyChain
                 FunctionName: ex.TargetSite?.Name ?? "UnknownMethod",
                 FilePath: "Extracted via TargetSite"
             );
-            
+
             using (var errDialog = new ErrorForm(metadata.FormatExceptionDetails(), "Error Crítico!!"))
             {
                 errDialog.ShowDialog();
             }
-            
+
             Environment.Exit(1);
         }
     }

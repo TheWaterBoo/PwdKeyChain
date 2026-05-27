@@ -1,9 +1,6 @@
 ﻿using System.Reflection;
-using PwdKeychain.Implementations;
 using PwdKeychain.Interfaces;
-using PwdKeychain.Models;
 using PwdKeychain.Properties;
-using System.ComponentModel;
 
 namespace PwdKeychain.Forms
 {
@@ -45,8 +42,7 @@ namespace PwdKeychain.Forms
             {
                 if (entryForm.ShowDialog() == DialogResult.OK)
                 {
-                    var newAccount = entryForm.GetAccountData();
-                    _dbManager.AddData(newAccount.WebsiteName, newAccount.Username, newAccount.Password);
+                    _dbManager.AddData(entryForm.Website, entryForm.Username, entryForm.Password);
                     GetGridViewData();
                 }
             }
@@ -62,15 +58,14 @@ namespace PwdKeychain.Forms
                 using (var editForm = new EntryAndEditForm("Update", "Cancel",
                            Resources.EntryAndEditForm_customForm_Editing_existing_account))
                 {
-                    var editAccount = editForm.GetAccountData();
-                    editAccount.WebsiteName = pwdInd.WebsiteName;
-                    editAccount.Username = pwdInd.Username;
-                    editAccount.Password = pwdInd.Password;
+                    editForm.Website = pwdInd.WebsiteName;
+                    editForm.Username = pwdInd.Username;
+                    editForm.Password = pwdInd.Password;
                     var passId = pwdInd.Id;
 
                     if (editForm.ShowDialog() == DialogResult.OK)
                     {
-                        _dbManager.EditData(passId, editAccount.WebsiteName, editAccount.Username, editAccount.Password);
+                        _dbManager.EditData(passId, editForm.Website, editForm.Username, editForm.Password);
                         GetGridViewData();
                     }
                 }
