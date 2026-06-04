@@ -30,7 +30,8 @@ namespace PwdKeychain.Implementations
                     (Id INTEGER PRIMARY KEY AUTOINCREMENT, 
                     Website TEXT NOT NULL, 
                     Username TEXT NOT NULL, 
-                    Password TEXT NOT NULL)";
+                    Password TEXT NOT NULL,
+                    Type TEXT NOT NULL)";
                     using (var command = new SQLiteCommand(createTable, connection))
                         command.ExecuteNonQuery();
 
@@ -50,7 +51,7 @@ namespace PwdKeychain.Implementations
             }
         }
 
-        public void AddPassword(string website, string username, string? password)
+        public void AddPassword(string website, string username, string? password, string type)
         {
             try
             {
@@ -60,12 +61,13 @@ namespace PwdKeychain.Implementations
                 {
                     connection.Open();
                     string insertQuery =
-                        "INSERT INTO PasswordEntries (Website, Username, Password) VALUES (@Website, @Username, @Password)";
+                        "INSERT INTO PasswordEntries (Website, Username, Password, Type) VALUES (@Website, @Username, @Password, @Type)";
                     using (var command = new SQLiteCommand(insertQuery, connection))
                     {
                         command.Parameters.AddWithValue("@Website", website);
                         command.Parameters.AddWithValue("@Username", username);
                         command.Parameters.AddWithValue("@Password", encryptPass);
+                        command.Parameters.AddWithValue("@Type", type);
                         command.ExecuteNonQuery();
                     }
 
@@ -84,7 +86,7 @@ namespace PwdKeychain.Implementations
             }
         }
 
-        public void EditPassword(string passId, string website, string username, string? password)
+        public void EditPassword(string passId, string website, string username, string? password, string? type)
         {
             try
             {
@@ -94,13 +96,14 @@ namespace PwdKeychain.Implementations
                 {
                     connection.Open();
                     string updateQuery =
-                        "UPDATE PasswordEntries SET Website = @Website, Username = @Username, Password = @Password WHERE Id = @Id";
+                        "UPDATE PasswordEntries SET Website = @Website, Username = @Username, Password = @Password, Type = @Type WHERE Id = @Id";
                     using (var command = new SQLiteCommand(updateQuery, connection))
                     {
                         command.Parameters.AddWithValue("@Id", passId);
                         command.Parameters.AddWithValue("@Website", website);
                         command.Parameters.AddWithValue("@Username", username);
                         command.Parameters.AddWithValue("@Password", editedEncryptPass);
+                        command.Parameters.AddWithValue("@Type", type);
                         command.ExecuteNonQuery();
                     }
 
@@ -201,7 +204,7 @@ namespace PwdKeychain.Implementations
                             if (reader.Read())
                                 return new PasswordEntry(reader["Website"].ToString(), reader["Username"].ToString(),
                                     _cryptNDecrypt.Decrypter(reader["Password"].ToString(), tempKey),
-                                    reader["Id"].ToString());
+                                    reader["Id"].ToString(), reader["Type"].ToString());
                         }
                     }
                 }

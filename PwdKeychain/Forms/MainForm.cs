@@ -11,7 +11,6 @@ namespace PwdKeychain.Forms
 {
     public partial class MainForm : Form
     {
-        public Keys ShortcutKeys { get; set; }
         private IDatabaseManager _dbManager = new DatabaseManager();
 
         public MainForm()
@@ -49,7 +48,7 @@ namespace PwdKeychain.Forms
                 {
                     if (entryForm.ShowDialog() == DialogResult.OK)
                     {
-                        _dbManager.AddPassword(entryForm.Website, entryForm.Username, entryForm.Password);
+                        _dbManager.AddPassword(entryForm.Website, entryForm.Username, entryForm.Password, entryForm.Type);
                         GetGridViewData();
                     }
                 }
@@ -73,11 +72,12 @@ namespace PwdKeychain.Forms
                     editForm.Website = pwdInd.WebsiteName;
                     editForm.Username = pwdInd.Username;
                     editForm.Password = pwdInd.Password;
+                    editForm.Type = pwdInd.Type;
                     string passId = pwdInd.Id;
 
                     if (editForm.ShowDialog() == DialogResult.OK)
                     {
-                        _dbManager.EditPassword(passId, editForm.Website, editForm.Username, editForm.Password);
+                        _dbManager.EditPassword(passId, editForm.Website, editForm.Username, editForm.Password, editForm.Type);
                         GetGridViewData();
                     }
                 }
@@ -115,12 +115,6 @@ namespace PwdKeychain.Forms
         private void MainForm_Load(object sender, EventArgs e)
         {
             accGridView.ClearSelection();
-        }
-
-        //Temporal method
-        private void Shortcuts()
-        {
-            ShortcutKeys = Keys.Control | Keys.N;
         }
     }
 }
