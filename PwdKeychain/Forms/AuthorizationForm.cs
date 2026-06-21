@@ -15,7 +15,7 @@ public partial class AuthorizationForm : Form
         InitializeComponent();
     }
     
-    private void loginButton_Click(object sender, EventArgs e)
+    private void loginButton_Click(object sender, EventArgs? e)
     {
         var inputPassword = passwordTextBox.Text;
         if (!CryptNDecrypt.ValidateMasterPassword(inputPassword, _storedHash, _storedSalt))

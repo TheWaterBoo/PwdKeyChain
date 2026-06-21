@@ -1,4 +1,3 @@
-using System.Data.SQLite;
 using PwdKeychain.Forms;
 using PwdKeychain.Implementations;
 using PwdKeychain.Utils;
@@ -10,6 +9,8 @@ namespace PwdKeyChain
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
+        private static bool _handlingException;
+        
         [STAThread]
         private static void Main()
         {
@@ -31,7 +32,7 @@ namespace PwdKeyChain
                 
                 storedData = dbManager.GetStoredData();
                 if (storedData == null) 
-                    throw new SQLiteException("Ocurrio un error al obtener los datos de la cuenta...");
+                    throw new InvalidOperationException("Ocurrio un error al obtener los datos de la cuenta...");
             }
             
             using var authorizationForm = new AuthorizationForm(storedData.Hash, storedData.Salt);
@@ -42,7 +43,7 @@ namespace PwdKeyChain
             var cryptNDecrypt = new CryptNDecrypt(masterPassword, storedData.Salt);
             dbManager.InitializeCryptor(cryptNDecrypt);
             
-            Application.Run(new MainForm(dbManager));
+            Application.Run(new MainForm(dbManager, passwordService));
         }
 
         private static void Common_ThreadException(object sender, ThreadExceptionEventArgs e)
@@ -60,6 +61,10 @@ namespace PwdKeyChain
 
         private static void ProcessUnhandledException(Exception ex)
         {
+            if (_handlingException) return;
+            
+            _handlingException = true;
+            
             var metadata = new ExceptionMetadata(
                 Exception: ex,
                 ClassName: ex.TargetSite?.DeclaringType?.Name ?? "UnknownClass",
@@ -72,7 +77,7 @@ namespace PwdKeyChain
                 errDialog.ShowDialog();
             }
 
-            Environment.Exit(1);
+            Application.Exit();
         }
     }
 }

@@ -8,13 +8,13 @@
             FormModify(msgText, okButton, noButton, formTitle);
         }
 
-        private void positiveButton_Click(object sender, EventArgs e)
+        private void positiveButton_Click(object sender, EventArgs? e)
         {
             DialogResult = DialogResult.OK;
             Close();
         }
 
-        private void NegativeButton_Click(object sender, EventArgs e)
+        private void NegativeButton_Click(object sender, EventArgs? e)
         {
             DialogResult = DialogResult.Cancel;
             Close();

@@ -15,7 +15,7 @@ public partial class RegistrationForm : Form
         InitializeComponent();
     }
 
-    private void registerButton_Click(object sender, EventArgs e)
+    private void registerButton_Click(object sender, EventArgs? e)
     {
         var inputPassword = registerTextBox.Text;
 

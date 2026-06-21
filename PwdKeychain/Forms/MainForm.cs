@@ -7,9 +7,11 @@ namespace PwdKeychain.Forms
     public partial class MainForm : Form
     {
         private readonly IDatabaseManager _dbManager;
+        private readonly IPasswordService _passwordService;
 
-        public MainForm(IDatabaseManager dbManager)
+        public MainForm(IDatabaseManager dbManager, IPasswordService passwordService)
         {
+            _passwordService = passwordService;
             _dbManager = dbManager;
             InitializeComponent();
             InitGridView();
@@ -37,7 +39,7 @@ namespace PwdKeychain.Forms
 
         private void addDataButton_Click(object sender, EventArgs e)
         {
-            using (var entryForm = new EntryAndEditForm("Save", "Cancel",
+            using (var entryForm = new EntryAndEditForm(_passwordService, "Save", "Cancel",
                        Resources.EntryAndEditForm_customForm_Add_new_account))
             {
                 if (entryForm.ShowDialog() != DialogResult.OK) return;
@@ -52,7 +54,7 @@ namespace PwdKeychain.Forms
             var row = accGridView.SelectedRows[0];
             var (websiteName, email, password, passId) = _dbManager.GetOneAccount(row.Cells["Id"].Value!.ToString()!);
 
-            using (var editForm = new EntryAndEditForm("Update", "Cancel",
+            using (var editForm = new EntryAndEditForm(_passwordService, "Update", "Cancel",
                        Resources.EntryAndEditForm_customForm_Editing_existing_account))
             {
                 editForm.Website = websiteName;
@@ -71,7 +73,7 @@ namespace PwdKeychain.Forms
             using (var deleteVerification = new ConfirmationForm(msgText, "Sure", "Cancel", "Warning"))
             {
                 var idList = (from DataGridViewRow row in accGridView.SelectedRows
-                    select row.Cells["Id"].Value.ToString()).ToList();
+                    select row.Cells["Id"].Value?.ToString()).ToList();
 
                 if (deleteVerification.ShowDialog() != DialogResult.OK) return;
                 _dbManager.DeleteData(idList);
