@@ -34,57 +34,76 @@ namespace PwdKeychain.Implementations
 
         public string Encrypter(string data, string id)
         {
-            var encryptionKey = DeriveKeyFromContext(_masterKey, id);
-            var iv = IvGen();
+            var key = DeriveKeyFromContext(_masterKey, id);
 
-            using (var aes = Aes.Create())
-            {
-                aes.Key = encryptionKey;
-                aes.IV = iv;
+            var nonce = RandomNumberGenerator.GetBytes(12);
 
-                using (var memoryStream = new MemoryStream())
-                {
-                    memoryStream.Write(iv, 0, iv.Length);
-                    
-                    using (var cryptoStream = new CryptoStream(memoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
-                    using (var streamWriter = new StreamWriter(cryptoStream, Encoding.UTF8))
-                    {
-                        streamWriter.Write(data);
-                    }
+            var plaintext = Encoding.UTF8.GetBytes(data);
 
-                    return Convert.ToBase64String(memoryStream.ToArray());
-                }
-            }
+            var cipher = new byte[plaintext.Length];
+
+            var tag = new byte[16];
+
+            using var aes = new AesGcm(key, 16);
+
+            aes.Encrypt(
+                nonce,
+                plaintext,
+                cipher,
+                tag
+            );
+
+            var result = new byte[
+                nonce.Length +
+                tag.Length +
+                cipher.Length
+            ];
+
+            Buffer.BlockCopy(nonce, 0, result, 0, nonce.Length);
+            Buffer.BlockCopy(tag, 0, result, nonce.Length, tag.Length);
+            Buffer.BlockCopy(cipher, 0, result,
+                nonce.Length + tag.Length,
+                cipher.Length);
+
+            return Convert.ToBase64String(result);
         }
 
         public string Decrypter(string encryptedData, string id)
         {
-            var fullCipher = Convert.FromBase64String(encryptedData);
-            const int ivSize = 16;
-            
-            if (fullCipher.Length < ivSize)
-                throw new FormatException("The cipher text is too short to contain the Initialization Vector");
+            var key = DeriveKeyFromContext(_masterKey, id);
 
-            var iv = new byte[ivSize];
-            Array.Copy(fullCipher, iv, ivSize);
+            var data = Convert.FromBase64String(encryptedData);
 
-            var cipher = new byte[fullCipher.Length - ivSize];
-            Array.Copy(fullCipher, ivSize, cipher, 0, cipher.Length);
-    
-            var decryptionKey = DeriveKeyFromContext(_masterKey, id);
+            var nonce = new byte[12];
+            var tag = new byte[16];
 
-            using (var aes = Aes.Create())
-            {
-                aes.Key = decryptionKey;
-                aes.IV = iv;
+            Array.Copy(data, 0, nonce, 0, 12);
+            Array.Copy(data, 12, tag, 0, 16);
 
-                using (var memoryStream = new MemoryStream(cipher)) 
-                using (var cryptoStream = new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
-                using (var streamReader = new StreamReader(cryptoStream, Encoding.UTF8))
-                {
-                    return streamReader.ReadToEnd();
-                }
-            }
+            var cipherLength = data.Length - 28;
+
+            var cipher = new byte[cipherLength];
+
+            Array.Copy(
+                data,
+                28,
+                cipher,
+                0,
+                cipherLength
+            );
+
+            var plaintext = new byte[cipherLength];
+
+            using var aes = new AesGcm(key, 16);
+
+            aes.Decrypt(
+                nonce,
+                cipher,
+                tag,
+                plaintext
+            );
+
+            return Encoding.UTF8.GetString(plaintext);
         }
 
         private static byte[] DeriveKey(string password, byte[] salt, int outputBytes)

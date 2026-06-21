@@ -16,34 +16,42 @@ namespace PwdKeyChain
         {
             ApplicationConfiguration.Initialize();
             
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             Application.ThreadException += Common_ThreadException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             
-            var dbManager = new DatabaseManager();
-            var passwordService = new PasswordService();
-            var storedData = dbManager.GetStoredData();
-
-            if (storedData == null)
+            try
             {
-                using var registerForm = new RegistrationForm(dbManager, passwordService);
-                
-                if (registerForm.ShowDialog() != DialogResult.OK) 
-                    return;
-                
-                storedData = dbManager.GetStoredData();
-                if (storedData == null) 
-                    throw new InvalidOperationException("Ocurrio un error al obtener los datos de la cuenta...");
-            }
-            
-            using var authorizationForm = new AuthorizationForm(storedData.Hash, storedData.Salt);
-            if (authorizationForm.ShowDialog() != DialogResult.OK) return;
+                var dbManager = new DatabaseManager();
+                var passwordService = new PasswordService();
+                var storedData = dbManager.GetStoredData();
 
-            var masterPassword = authorizationForm.UserPasswordInput;
+                if (storedData == null)
+                {
+                    using var registerForm = new RegistrationForm(dbManager, passwordService);
+                
+                    if (registerForm.ShowDialog() != DialogResult.OK) 
+                        return;
+                
+                    storedData = dbManager.GetStoredData();
+                    if (storedData == null) 
+                        throw new InvalidOperationException("Ocurrio un error al obtener los datos de la cuenta...");
+                }
             
-            var cryptNDecrypt = new CryptNDecrypt(masterPassword, storedData.Salt);
-            dbManager.InitializeCryptor(cryptNDecrypt);
+                using var authorizationForm = new AuthorizationForm(storedData.Hash, storedData.Salt);
+                if (authorizationForm.ShowDialog() != DialogResult.OK) return;
+
+                var masterPassword = authorizationForm.UserPasswordInput;
             
-            Application.Run(new MainForm(dbManager, passwordService));
+                var cryptNDecrypt = new CryptNDecrypt(masterPassword, storedData.Salt);
+                dbManager.InitializeCryptor(cryptNDecrypt);
+                
+                Application.Run(new MainForm(dbManager, passwordService));
+            }
+            catch (Exception ex)
+            {
+                ProcessUnhandledException(ex);
+            }
         }
 
         private static void Common_ThreadException(object sender, ThreadExceptionEventArgs e)
