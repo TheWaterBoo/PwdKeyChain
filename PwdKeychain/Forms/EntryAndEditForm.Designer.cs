@@ -74,7 +74,7 @@ namespace PwdKeychain.Forms
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(100, 17);
             this.label2.TabIndex = 0;
-            this.label2.Text = "Username / Email:";
+            this.label2.Text = "Email / Email:";
             // 
             // userTxtBox
             // 

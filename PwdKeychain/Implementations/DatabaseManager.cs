@@ -15,7 +15,7 @@ namespace PwdKeychain.Implementations
             CreateDatabase();
         }
 
-        public void InitializeCryptor(ICryptNDecrypt cryptNDecrypt)
+        public void InitializeCryptor(ICryptNDecrypt? cryptNDecrypt)
         {
             _cryptNDecrypt = cryptNDecrypt;
         }
@@ -29,7 +29,7 @@ namespace PwdKeychain.Implementations
                     @"CREATE TABLE IF NOT EXISTS PasswordEntries 
                     (Id TEXT PRIMARY KEY, 
                     Website TEXT NOT NULL, 
-                    Username TEXT NOT NULL, 
+                    Email TEXT NOT NULL, 
                     Password TEXT NOT NULL,
                     CreationTime TEXT NOT NULL)";
                 using (var command = new SQLiteCommand(createTable, connection))
@@ -45,7 +45,7 @@ namespace PwdKeychain.Implementations
             }
         }
 
-        public MainData GetStoredData()
+        public MainData? GetStoredData()
         {
             using (var connection = new SQLiteConnection(ConnectionString))
             {
@@ -80,7 +80,7 @@ namespace PwdKeychain.Implementations
             }
         }
 
-        public void AddData(string website, string username, string? password)
+        public void AddData(string website, string email, string? password)
         {
             var newId = Guid.NewGuid().ToString();
             var creationTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -89,43 +89,46 @@ namespace PwdKeychain.Implementations
             {
                 connection.Open();
                 var insertQuery =
-                    "INSERT INTO PasswordEntries (Id, Website, Username, Password, CreationTime) VALUES (@Id, @Website, @Username, @Password, @CreationTime)";
+                    "INSERT INTO PasswordEntries (Id, Website, Email, Password, CreationTime) VALUES (@Id, @Website, @Email, @Password, @CreationTime)";
                 using (var command = new SQLiteCommand(insertQuery, connection))
                 {
                     command.Parameters.AddWithValue("@Id", newId);
                     command.Parameters.AddWithValue("@Website", website);
-                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@Email", "EMAIL_PLACEHOLDER");
                     command.Parameters.AddWithValue("@Password", "PASS_PLACEHOLDER");
                     command.Parameters.AddWithValue("@CreationTime", creationTime);
                     command.ExecuteNonQuery();
                 }
 
                 var encryptPass = _cryptNDecrypt.Encrypter(password, newId);
+                var encryptEmail = _cryptNDecrypt.Encrypter(email, newId);
 
-                var updateQuery = "UPDATE PasswordEntries SET Password = @Password WHERE Id = @Id";
+                var updateQuery = "UPDATE PasswordEntries SET Password = @Password, Email = @Email WHERE Id = @Id";
                 using (var command = new SQLiteCommand(updateQuery, connection))
                 {
                     command.Parameters.AddWithValue("@Id", newId);
                     command.Parameters.AddWithValue("@Password", encryptPass);
+                    command.Parameters.AddWithValue("@Email", encryptEmail);
                     command.ExecuteNonQuery();
                 }
             }
         }
 
-        public void EditData(string passId, string website, string username, string? password)
+        public void EditData(string passId, string website, string email, string password)
         {
-            var editedEncryptPass = _cryptNDecrypt.Encrypter(password, passId);
+            var editedEncryptPass = _cryptNDecrypt?.Encrypter(password, passId);
+            var editedEncryptEmail = _cryptNDecrypt?.Encrypter(email, passId);
 
             using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
                 string updateQuery =
-                    "UPDATE PasswordEntries SET Website = @Website, Username = @Username, Password = @Password WHERE Id = @Id";
+                    "UPDATE PasswordEntries SET Website = @Website, Email = @Email, Password = @Password WHERE Id = @Id";
                 using (var command = new SQLiteCommand(updateQuery, connection))
                 {
                     command.Parameters.AddWithValue("@Id", passId);
                     command.Parameters.AddWithValue("@Website", website);
-                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@Email", editedEncryptEmail);
                     command.Parameters.AddWithValue("@Password", editedEncryptPass);
                     command.ExecuteNonQuery();
                 }
@@ -161,10 +164,11 @@ namespace PwdKeychain.Implementations
                 using (var reader = command.ExecuteReader())
                     while (reader.Read())
                     {
+                        var id = reader["Id"].ToString();
+
                         entries.Add(new AccountEntry(
-                            reader["Website"].ToString(),
-                            reader["Username"].ToString(),
-                            reader["Id"].ToString()
+                            reader["Website"].ToString()!,
+                            _cryptNDecrypt?.Decrypter(reader["Email"].ToString()!, id!), id!
                         ));
                     }
             }
@@ -186,10 +190,11 @@ namespace PwdKeychain.Implementations
                         if (!reader.Read())
                             throw new SQLiteException("An error occurred while reading the database");
 
-                        var entryId = reader["Id"].ToString();
+                        var id = reader["Id"].ToString();
 
-                        return new AccountEntry(reader["Website"].ToString()!, reader["Username"].ToString()!,
-                            _cryptNDecrypt.Decrypter(reader["Password"].ToString()!, entryId!), entryId!);
+                        return new AccountEntry(reader["Website"].ToString()!,
+                            _cryptNDecrypt?.Decrypter(reader["Email"].ToString()!, id!),
+                            _cryptNDecrypt?.Decrypter(reader["Password"].ToString()!, id!), id!);
                     }
                 }
             }

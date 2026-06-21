@@ -32,7 +32,7 @@ namespace PwdKeychain.Implementations
             return CryptographicOperations.FixedTimeEquals(storedHash, computedHash);
         }
 
-        public string Encrypter(string pwd, string id)
+        public string Encrypter(string data, string id)
         {
             var encryptionKey = DeriveKeyFromContext(_masterKey, id);
             var iv = IvGen();
@@ -49,7 +49,7 @@ namespace PwdKeychain.Implementations
                     using (var cryptoStream = new CryptoStream(memoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
                     using (var streamWriter = new StreamWriter(cryptoStream, Encoding.UTF8))
                     {
-                        streamWriter.Write(pwd);
+                        streamWriter.Write(data);
                     }
 
                     return Convert.ToBase64String(memoryStream.ToArray());
@@ -57,9 +57,9 @@ namespace PwdKeychain.Implementations
             }
         }
 
-        public string Decrypter(string zipedPwd, string id)
+        public string Decrypter(string encryptedData, string id)
         {
-            var fullCipher = Convert.FromBase64String(zipedPwd);
+            var fullCipher = Convert.FromBase64String(encryptedData);
             const int ivSize = 16;
             
             if (fullCipher.Length < ivSize)
@@ -77,8 +77,6 @@ namespace PwdKeychain.Implementations
             {
                 aes.Key = decryptionKey;
                 aes.IV = iv;
-
-                //var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
 
                 using (var memoryStream = new MemoryStream(cipher)) 
                 using (var cryptoStream = new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read))

@@ -19,16 +19,19 @@ namespace PwdKeyChain
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             
             var dbManager = new DatabaseManager();
+            var passwordService = new PasswordService();
             var storedData = dbManager.GetStoredData();
 
             if (storedData == null)
             {
-                using var registerForm = new RegistrationForm(dbManager);
+                using var registerForm = new RegistrationForm(dbManager, passwordService);
                 
-                if (registerForm.ShowDialog() != DialogResult.OK) return;
+                if (registerForm.ShowDialog() != DialogResult.OK) 
+                    return;
                 
                 storedData = dbManager.GetStoredData();
-                if (storedData == null) throw new SQLiteException("Ocurrio un error al obtener los datos de la cuenta...");
+                if (storedData == null) 
+                    throw new SQLiteException("Ocurrio un error al obtener los datos de la cuenta...");
             }
             
             using var authorizationForm = new AuthorizationForm(storedData.Hash, storedData.Salt);

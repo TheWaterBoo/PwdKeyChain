@@ -74,6 +74,8 @@ partial class AuthorizationForm
         MinimizeBox = false;
         StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
         Text = "LogIn";
+        Load += AuthorizationForm_Load;
+        KeyDown += AuthorizationFrom_KeyDown;
         ResumeLayout(false);
         PerformLayout();
     }

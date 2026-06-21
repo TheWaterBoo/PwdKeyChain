@@ -13,7 +13,7 @@ namespace PwdKeychain.Forms
         }
         
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Username
+        public string? Email
         {
             get => userTxtBox.Text;
             set => userTxtBox.Text = value;

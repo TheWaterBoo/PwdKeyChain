@@ -2,7 +2,7 @@
 {
     public interface ICryptNDecrypt
     {
-        string Encrypter(string pwd, string id);
-        string Decrypter(string zipedPwd, string id);
+        string Encrypter(string data, string id);
+        string Decrypter(string encryptedData, string id);
     }
 }

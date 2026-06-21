@@ -20,7 +20,7 @@ public partial class AuthorizationForm : Form
         var inputPassword = passwordTextBox.Text;
         if (!CryptNDecrypt.ValidateMasterPassword(inputPassword, _storedHash, _storedSalt))
         {
-            MessageBox.Show("Incorrect password!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("Incorrect password! Try Again", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             passwordTextBox.Clear();
             passwordTextBox.Focus();
             return;
@@ -28,5 +28,20 @@ public partial class AuthorizationForm : Form
         UserPasswordInput = inputPassword;
         DialogResult = DialogResult.OK;
         Close();
+    }
+
+    private void AuthorizationFrom_KeyDown(object sender, KeyEventArgs e)
+    {
+        switch (e.KeyValue)
+        {
+            case 13: //ENTER Key
+                loginButton_Click(sender, null);
+                break;
+        }
+    }
+    
+    private void AuthorizationForm_Load(object sender, EventArgs e)
+    {
+        KeyPreview = true;
     }
 }

@@ -19,8 +19,8 @@ namespace PwdKeychain.Forms
         private void InitGridView()
         {
             GetGridViewData();
-            accGridView.Columns["Password"].Visible = false;
-            accGridView.Columns["Id"].Visible = false;
+            accGridView.Columns["Password"]!.Visible = false;
+            accGridView.Columns["Id"]!.Visible = false;
             accGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         }
 
@@ -40,48 +40,38 @@ namespace PwdKeychain.Forms
             using (var entryForm = new EntryAndEditForm("Save", "Cancel",
                        Resources.EntryAndEditForm_customForm_Add_new_account))
             {
-                if (entryForm.ShowDialog() == DialogResult.OK)
-                {
-                    _dbManager.AddData(entryForm.Website, entryForm.Username, entryForm.Password);
-                    GetGridViewData();
-                }
+                if (entryForm.ShowDialog() != DialogResult.OK) return;
+                _dbManager.AddData(entryForm.Website, entryForm.Email, entryForm.Password);
+                GetGridViewData();
             }
         }
 
         private void editDataButton_Click(object sender, EventArgs e)
         {
-            if (accGridView.SelectedRows.Count > 0)
+            if (accGridView.SelectedRows.Count <= 0) return;
+            var row = accGridView.SelectedRows[0];
+            var (websiteName, email, password, passId) = _dbManager.GetOneAccount(row.Cells["Id"].Value!.ToString()!);
+
+            using (var editForm = new EntryAndEditForm("Update", "Cancel",
+                       Resources.EntryAndEditForm_customForm_Editing_existing_account))
             {
-                var row = accGridView.SelectedRows[0];
-                var pwdInd = _dbManager.GetOneAccount(row.Cells["Id"].Value.ToString());
+                editForm.Website = websiteName;
+                editForm.Email = email;
+                editForm.Password = password;
 
-                using (var editForm = new EntryAndEditForm("Update", "Cancel",
-                           Resources.EntryAndEditForm_customForm_Editing_existing_account))
-                {
-                    editForm.Website = pwdInd.WebsiteName;
-                    editForm.Username = pwdInd.Username;
-                    editForm.Password = pwdInd.Password;
-                    var passId = pwdInd.Id;
-
-                    if (editForm.ShowDialog() == DialogResult.OK)
-                    {
-                        _dbManager.EditData(passId, editForm.Website, editForm.Username, editForm.Password);
-                        GetGridViewData();
-                    }
-                }
+                if (editForm.ShowDialog() != DialogResult.OK) return;
+                _dbManager.EditData(passId, editForm.Website, editForm.Email, editForm.Password);
+                GetGridViewData();
             }
         }
 
         private void deleteDataButton_Click(object sender, EventArgs e)
         {
             var msgText = $"The following {accGridView.SelectedRows.Count} item(s) will be deleted,\n are you sure?";
-            using (ConfirmationForm deleteVerification = new ConfirmationForm(msgText, "Sure", "Cancel", "Warning"))
+            using (var deleteVerification = new ConfirmationForm(msgText, "Sure", "Cancel", "Warning"))
             {
-                List<string> idList = new List<string>();
-                foreach (DataGridViewRow row in accGridView.SelectedRows)
-                {
-                    idList.Add(row.Cells["Id"].Value.ToString());
-                }
+                var idList = (from DataGridViewRow row in accGridView.SelectedRows
+                    select row.Cells["Id"].Value.ToString()).ToList();
 
                 if (deleteVerification.ShowDialog() != DialogResult.OK) return;
                 _dbManager.DeleteData(idList);

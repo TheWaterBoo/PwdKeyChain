@@ -34,11 +34,12 @@ partial class RegistrationForm
         registerButton = new System.Windows.Forms.Button();
         registerTextBox = new System.Windows.Forms.TextBox();
         label1 = new System.Windows.Forms.Label();
+        cancelButton = new System.Windows.Forms.Button();
         SuspendLayout();
         // 
         // registerButton
         // 
-        registerButton.Location = new System.Drawing.Point(76, 81);
+        registerButton.Location = new System.Drawing.Point(26, 82);
         registerButton.Name = "registerButton";
         registerButton.Size = new System.Drawing.Size(75, 23);
         registerButton.TabIndex = 0;
@@ -61,11 +62,22 @@ partial class RegistrationForm
         label1.TabIndex = 2;
         label1.Text = "Set a password:";
         // 
+        // cancelButton
+        // 
+        cancelButton.Location = new System.Drawing.Point(128, 82);
+        cancelButton.Name = "cancelButton";
+        cancelButton.Size = new System.Drawing.Size(75, 23);
+        cancelButton.TabIndex = 3;
+        cancelButton.Text = "Cancel";
+        cancelButton.UseVisualStyleBackColor = true;
+        cancelButton.Click += cancelButton_Click;
+        // 
         // RegistrationForm
         // 
         AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         ClientSize = new System.Drawing.Size(225, 130);
+        Controls.Add(cancelButton);
         Controls.Add(label1);
         Controls.Add(registerTextBox);
         Controls.Add(registerButton);
@@ -74,9 +86,13 @@ partial class RegistrationForm
         MinimizeBox = false;
         StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
         Text = "Register";
+        Load += RegistrationForm_Load;
+        KeyDown += RegistrationFrom_KeyDown;
         ResumeLayout(false);
         PerformLayout();
     }
+
+    private System.Windows.Forms.Button cancelButton;
 
     private System.Windows.Forms.Label label1;
 
