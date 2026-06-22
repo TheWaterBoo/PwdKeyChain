@@ -98,5 +98,26 @@ namespace PwdKeychain.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        internal static System.Drawing.Bitmap view24 {
+            get {
+                object obj = ResourceManager.GetObject("view24", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap hide24 {
+            get {
+                object obj = ResourceManager.GetObject("hide24", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap copy24 {
+            get {
+                object obj = ResourceManager.GetObject("copy24", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }
