@@ -37,11 +37,20 @@ namespace PwdKeychain.Forms
         {
             _passwordService = passwordService;
             InitializeComponent();
-            generalTooltip.SetToolTip(pictureShowPassword, "Show / Hide password");
-            generalTooltip.SetToolTip(pictureCopyPassword, "Copy password");
-            generalTooltip.SetToolTip(generateRandomPassword, "Generate new safe password");
+            InitializeTooltips();
             pictureShowPassword.Image = Images.hide24;
             CustomForm(okButton, noButton, formTitle);
+        }
+
+        private void InitializeTooltips()
+        {
+            generalTooltip.SetToolTip(pictureShowPassword, "Show / Hide password");
+            generalTooltip.SetToolTip(pictureCopyPassword, "Copy password");
+            generalTooltip.SetToolTip(pictureCopyUsername, "Copy username");
+            generalTooltip.SetToolTip(generateRandomPassword, "Generate new safe password");
+
+            generalTooltip.InitialDelay = 400;
+            generalTooltip.AutoPopDelay = 1000;
         }
 
         private void CustomForm(string okButton, string noButton, string formTitle)
@@ -53,17 +62,8 @@ namespace PwdKeychain.Forms
 
         private void entryAndEditButt_Click(object sender, EventArgs? e)
         {
-            if (string.IsNullOrWhiteSpace(Website) || string.IsNullOrWhiteSpace(Email))
-            {
-                MessageBox.Show("Website and Email cannot be empty!");
+            if (!ValidateForm())
                 return;
-            }
-
-            if (!_passwordService.IsValid(Password, out var errorMsg))
-            {
-                MessageBox.Show(errorMsg);
-                return;
-            }
 
             DialogResult = DialogResult.OK;
             Close();
@@ -95,12 +95,31 @@ namespace PwdKeychain.Forms
 
         private void pictureCopyPassword_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(pwdTxtBox.Text))
+                return;
+
             Clipboard.SetText(pwdTxtBox.Text);
             generalTooltip.Show(
                 "Copied!",
                 pictureCopyPassword,
-                500
+                2000
             );
+
+            generalTooltip.SetToolTip(pictureCopyPassword, "Copy password");
+        }
+
+        private void pictureCopyUsername_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(userTxtBox.Text))
+                return;
+
+            Clipboard.SetText(userTxtBox.Text);
+            generalTooltip.Show(
+                "Copied!",
+                pictureCopyUsername,
+                2000
+            );
+            generalTooltip.SetToolTip(pictureCopyUsername, "Copy username");
         }
 
         private void pictureShowPassword_MouseDown(object sender, MouseEventArgs e)
@@ -125,28 +144,46 @@ namespace PwdKeychain.Forms
         private void pwdTxtBox_TextChanged(object sender, EventArgs e)
         {
             var strength = _passwordService.GetPasswordStrength(pwdTxtBox.Text);
+            
+            labelErrorPassword.Text = "";
+            pwdTxtBox.BackColor = SystemColors.Window;
 
             switch (strength)
             {
                 case PasswordStrength.Invalid:
                     strengthLabel.Text = "? ? ?";
                     ResetStrengthPanels();
+                    strengthLabel.Location = strengthLabel.Location with { X = 77 };
+                    break;
+                case PasswordStrength.VeryWeak:
+                    strengthLabel.Text = "Very Weak";
+                    UpdateStrengthPanels(1, Color.Red);
+                    strengthLabel.Location = strengthLabel.Location with { X = 77 };
                     break;
                 case PasswordStrength.Weak:
                     strengthLabel.Text = "Weak";
-                    UpdateStrengthPanels(1, Color.Red);
+                    UpdateStrengthPanels(2, Color.OrangeRed);
+                    strengthLabel.Location = strengthLabel.Location with { X = 77 };
                     break;
                 case PasswordStrength.Medium:
                     strengthLabel.Text = "Medium";
                     UpdateStrengthPanels(3, Color.Goldenrod);
+                    strengthLabel.Location = strengthLabel.Location with { X = 77 };
                     break;
                 case PasswordStrength.Strong:
                     strengthLabel.Text = "Strong";
                     UpdateStrengthPanels(4, Color.Green);
+                    strengthLabel.Location = strengthLabel.Location with { X = 77 };
                     break;
                 case PasswordStrength.VeryStrong:
                     strengthLabel.Text = "Very Strong";
                     UpdateStrengthPanels(5, Color.DarkGreen);
+                    strengthLabel.Location = strengthLabel.Location with { X = 77 };
+                    break;
+                case PasswordStrength.Indecipherable:
+                    strengthLabel.Text = "Indecipherable";
+                    UpdateStrengthPanels(6, Color.Purple);
+                    strengthLabel.Location = strengthLabel.Location with { X = 88 };
                     break;
             }
         }
@@ -163,7 +200,8 @@ namespace PwdKeychain.Forms
                 strengthPanel2,
                 strengthPanel3,
                 strengthPanel4,
-                strengthPanel5
+                strengthPanel5,
+                strengthPanel6
             ];
 
             for (var i = 0; i < blocks; i++)
@@ -179,6 +217,81 @@ namespace PwdKeychain.Forms
             strengthPanel3.BackColor = Color.LightGray;
             strengthPanel4.BackColor = Color.LightGray;
             strengthPanel5.BackColor = Color.LightGray;
+            strengthPanel6.BackColor = Color.Transparent;
+        }
+
+        private bool ValidateForm()
+        {
+            var isValid = true;
+
+            labelErrorWebsite.Text = "";
+            labelErrorUsername.Text = "";
+            labelErrorPassword.Text = "";
+
+            if (string.IsNullOrWhiteSpace(websiteTxtBox.Text))
+            {
+                labelErrorWebsite.Text = "*Site name is required";
+                websiteTxtBox.BackColor = Color.MistyRose;
+                isValid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(userTxtBox.Text))
+            {
+                labelErrorUsername.Text = "*Username is required";
+                userTxtBox.BackColor = Color.MistyRose;
+                isValid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(pwdTxtBox.Text))
+            {
+                labelErrorPassword.Text = "*Password is required";
+                pwdTxtBox.BackColor = Color.MistyRose;
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        private void websiteTxtBox_Validating(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(websiteTxtBox.Text))
+            {
+                labelErrorWebsite.Text = "*Site name is required";
+                websiteTxtBox.BackColor = Color.MistyRose;
+            }
+            else
+            {
+                labelErrorWebsite.Text = "";
+                websiteTxtBox.BackColor = SystemColors.Window;
+            }
+        }
+
+        private void userTxtBox_Validating(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(userTxtBox.Text))
+            {
+                labelErrorUsername.Text = "*Username is required";
+                userTxtBox.BackColor = Color.MistyRose;
+            }
+            else
+            {
+                labelErrorUsername.Text = "";
+                userTxtBox.BackColor = SystemColors.Window;
+            }
+        }
+
+        private void pwdTxtBox_Validating(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(pwdTxtBox.Text))
+            {
+                labelErrorPassword.Text = "*Password is required";
+                pwdTxtBox.BackColor = Color.MistyRose;
+            }
+            else
+            {
+                labelErrorPassword.Text = "";
+                pwdTxtBox.BackColor = SystemColors.Window;
+            }
         }
 
         private void pictureShowPassword_MouseEnter(object sender, EventArgs e)
@@ -199,6 +312,18 @@ namespace PwdKeychain.Forms
         private void pictureCopyPassword_MouseLeave(object sender, EventArgs e)
         {
             pictureCopyPassword.BackColor = Color.Transparent;
+        }
+
+        private void websiteTxtBox_TextChanged(object sender, EventArgs e)
+        {
+            labelErrorWebsite.Text = "";
+            websiteTxtBox.BackColor = SystemColors.Window;
+        }
+
+        private void userTxtBox_TextChanged(object sender, EventArgs e)
+        {
+            labelErrorUsername.Text = "";
+            userTxtBox.BackColor = SystemColors.Window;
         }
     }
 }
